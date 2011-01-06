@@ -159,7 +159,7 @@ sub get_max_id {
 
 sub bootstrap {
     my ($empire_id) = @_;
-    output('Bootstrapping tables');
+    output("Bootstrapping tables\n");
     $dbh->do('CREATE TABLE processed (message_id int, empire_id int)');
     $dbh->do('CREATE UNIQUE INDEX proc_uniq ON processed(message_id, empire_id)');
     $dbh->do('CREATE TABLE trip (empire_id int, message_id, subject text, found text, amount int, type text, from_x int, from_y int, from_name text, to_x int, to_y int, to_name text, distance text)');
