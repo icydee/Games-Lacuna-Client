@@ -132,10 +132,10 @@ output(sprintf("%d excavators sent an average of %.2f units.\n\n", $total, $dist
     output("------------------------------------------------------------------------------\n");
     for (my $i = 0; $i <= $max_distance; $i += 250) {
         # total for this distance
-        my ($total) = $dbh->selectrow_array('select count(*) as count from trip where empire_id = ? and distance >= ? and distance < ?', undef, $empire->{id}, $i, $i + 250);
+        my ($total) = $dbh->selectrow_array('select count(*) as count from trip where empire_id = ? and 0+distance >= 0+? and 0+distance < 0+?', undef, $empire->{id}, $i, $i + 250);
         next unless $total;
         # breakdown for this distance
-        my $breakdown = $dbh->selectall_hashref('select found, count(*) as count from trip where empire_id = ? and distance >= ? and distance < ? group by 1 order by 2 desc', 'found', undef, $empire->{id}, $i, $i + 250);
+        my $breakdown = $dbh->selectall_hashref('select found, count(*) as count from trip where empire_id = ? and 0+distance >= 0+? and 0+distance < 0+? group by 1 order by 2 desc', 'found', undef, $empire->{id}, $i, $i + 250);
         output(sprintf("   %4s-%4s |", $i, $i + 250));
         output(sprintf("%7s/%3.0f%% |", $breakdown->{nothing}{count} || 0, 100 * (($breakdown->{nothing}{count}  || 0)/ $total)));
         output(sprintf("%7s/%3.0f%% |", $breakdown->{resource}{count} || 0, 100 * (($breakdown->{resource}{count}  || 0)/ $total)));
