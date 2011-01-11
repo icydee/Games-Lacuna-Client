@@ -24,6 +24,7 @@ GetOptions(\%opts,
     'config=s',
     'db=s',
     'bootstrap',
+    'resources',
 );
 
 usage() if $opts{h};
@@ -114,7 +115,7 @@ output(sprintf("%d excavators sent an average of %.2f units.\n\n", $total, $dist
     output("\n");
 }
 # resources
-{
+if ($opts{resources}) {
     output("Resources found:\n");
     my $sth = $dbh->prepare('select sum(amount), type, count(*) as count from trip where empire_id = ? and found = ? group by 2 order by 1 desc');
     $sth->execute($empire->{id}, 'resource');
@@ -178,6 +179,7 @@ sub parse_glyph_message {
         verbose("Type: $type\n");
         verbose("to: ($to_x, $to_y) $to_name\n");
         verbose("from: ($planet_id) $from_name\n");
+        output("NEW: $type\n");
         my $body = get_from($planet_id);
         save_trip($empire->{id}, $message->{id}, $message->{subject}, 'glyph', 1, $type, $body->{body}{x}, $body->{body}{y}, $from_name, $to_x, $to_y, $to_name, euclid_dist($body->{body}{x}, $body->{body}{y}, $to_x, $to_y));
     }
@@ -215,6 +217,7 @@ sub parse_plan_message {
         verbose("Level $amount $type\n");
         verbose("to: ($to_x, $to_y) $to_name\n");
         verbose("from: ($planet_id) $from_name\n");
+        output("NEW: $type $amount\n");
         # get coords from planet
         my $body = get_from($planet_id);
         save_trip($empire->{id}, $message->{id}, $message->{subject}, 'plan', $amount, $type, $body->{body}{x}, $body->{body}{y}, $from_name, $to_x, $to_y, $to_name, euclid_dist($body->{body}{x}, $body->{body}{y}, $to_x, $to_y));
@@ -294,6 +297,7 @@ Options:
   --config <file> - GLC config, defaults to lacuna.yml
   --db     <file> - SQLite db containing your excavation history
   --bootstrap     - Assume SQLite is empty and bootstrap it, will start you from scratch
+  --resource      - Show resources found over time (verbose and mostly just for kicks)
 END
 
     exit 1;
