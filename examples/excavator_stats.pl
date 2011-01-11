@@ -317,7 +317,7 @@ Options:
   --config <file> - GLC config, defaults to lacuna.yml
   --db     <file> - SQLite db containing your excavation history
   --bootstrap     - Assume SQLite is empty and bootstrap it, will start you from scratch
-  --resource      - Show resources found over time (verbose and mostly just for kicks)
+  --resources     - Show resources found over time (verbose and mostly just for kicks)
 END
 
     exit 1;
