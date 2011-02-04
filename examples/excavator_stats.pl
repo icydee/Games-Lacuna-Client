@@ -50,6 +50,25 @@ if ($@) {
     exit;
 }
 
+my $inbox_count = $glc->inbox->view_inbox()->{message_count};
+my $inbox_pages = ceil($inbox_count / 25);
+my @to_archive;
+INBOX: for my $page (1..$inbox_pages) {
+    my $messages = $glc->inbox->view_inbox({page_number => $page})->{messages};
+    last unless scalar @$messages;
+    for my $msg (@$messages) {
+        # grab each excavator message and save excavator results
+        given ($msg->{subject}) {
+            when ('Glyph Discovered!') { push @to_archive, $msg->{id} }
+            when ('Resources Discovered!') { push @to_archive, $msg->{id} }
+            when ('Excavator Uncovered Plan') { push @to_archive, $msg->{id} }
+            when ('Excavator Found Nothing') { push @to_archive, $msg->{id} }
+            when ('Wasting Resources') { push @to_archive, $msg->{id} }
+        }
+    }
+}
+$glc->inbox->archive_messages(\@to_archive);
+
 my $new_max_id = 0;
 my $message_count = $glc->inbox->view_archived()->{message_count};
 my $pages = ceil($message_count / 25);
