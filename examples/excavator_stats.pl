@@ -25,6 +25,7 @@ GetOptions(\%opts,
     'db=s',
     'bootstrap',
     'resources',
+    's|short',
 );
 
 usage() if $opts{h};
@@ -110,7 +111,7 @@ $dbh->do('UPDATE processed SET message_id = ? where empire_id = ?', undef, $new_
 my ($total, $dist) = $dbh->selectrow_array('select count(*) as count, avg(distance) as avg from trip where empire_id = ?', undef, $empire->{id});
 output(sprintf("%d excavators sent an average of %.2f units.\n\n", $total, $dist));
 # breakdown by type
-{
+unless ($opts{s}) {
     output("Broken down by type:\n");
     my $sth = $dbh->prepare('select found, count(*) as count from trip where empire_id = ? group by 1 order by 2 desc');
     $sth->execute($empire->{id});
@@ -120,7 +121,7 @@ output(sprintf("%d excavators sent an average of %.2f units.\n\n", $total, $dist
     output("\n");
 }
 # list number of each type of glyph found
-{
+unless ($opts{s}) {
     output("Glyphs excavated:\n");
     my $sth = $dbh->prepare('select type, count(*) as count from trip where empire_id = ? and found = ? group by 1 order by 2 desc');
     $sth->execute($empire->{id}, 'glyph');
@@ -133,7 +134,7 @@ output(sprintf("%d excavators sent an average of %.2f units.\n\n", $total, $dist
     output("\n");
 }
 # list number of each type of plan found
-{
+unless ($opts{s}) {
     output("Plans found:\n");
     my $sth = $dbh->prepare("select type || ' ' || amount, count(*) as count from trip where empire_id = ? and found = ? group by 1 order by 1,2 desc");
     $sth->execute($empire->{id}, 'plan');
@@ -326,6 +327,7 @@ Options:
   --db     <file> - SQLite db containing your excavation history
   --bootstrap     - Assume SQLite is empty and bootstrap it, will start you from scratch
   --resources     - Show resources found over time (verbose and mostly just for kicks)
+  --short         - Shorter format
 END
 
     exit 1;
