@@ -31,6 +31,7 @@ usage() if $opts{h};
 
 my $glc = Games::Lacuna::Client->new(
     cfg_file => $opts{config} || "$FindBin::Bin/../lacuna.yml",
+    rpc_sleep => 1
 );
 
 my $db_file = $opts{db} || "$FindBin::Bin/../excavators.db";
