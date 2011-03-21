@@ -20,12 +20,14 @@ GetOptions(\%opts,
     'config=s',
     'planet=s@',
     'to=s',
+    'planlvl=i',
 ) or usage();
 
 usage() if $opts{help};
 usage() unless $opts{to};
 
 my $dest = normalize_planet($opts{to});
+$opts{planlvl} ||= 1;
 
 my %do_planets;
 if ($opts{planet}) {
@@ -161,7 +163,7 @@ exit;
     }
     sub interesting_plan {
         my $plan = shift;
-        return ($types{$plan->{name}} and ($plan->{level} > 1 or $plan->{extra_build_level}));
+        return ($types{$plan->{name}} and ($plan->{level} > 1 or $plan->{extra_build_level} >= $opts{planlvl}));
     }
 }
 
