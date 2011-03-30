@@ -76,7 +76,9 @@ my $pages = ceil($message_count / 25);
 PAGE: for my $page (1..$pages) {
     # look back through archive where newer than max id
     verbose("Grabbing page $page from the archive\n");
-    my $messages = $glc->inbox->view_archived({page_number => $page})->{messages};
+    my $messages = eval {
+        $glc->inbox->view_archived({page_number => $page})->{messages};
+    };
     last unless scalar @$messages;
     for my $msg (@$messages) {
         if ($msg->{id} <= $max_id) {
@@ -85,11 +87,17 @@ PAGE: for my $page (1..$pages) {
             last PAGE;
         }
         # grab each excavator message and save excavator results
+        eval {
         given ($msg->{subject}) {
             when ('Glyph Discovered!') { parse_glyph_message($glc->inbox->read_message($msg->{id})->{message}) }
             when ('Resources Discovered!') { parse_resource_message($glc->inbox->read_message($msg->{id})->{message}) }
             when ('Excavator Uncovered Plan') { parse_plan_message($glc->inbox->read_message($msg->{id})->{message}) }
             when ('Excavator Found Nothing') { parse_nothing_message($glc->inbox->read_message($msg->{id})->{message}) }
+        }
+        };
+        if ($@) {
+            output("Bleh, error: $@");
+            redo;
         }
         $new_max_id = $msg->{id} if ($msg->{id} > $new_max_id);
     }
