@@ -672,7 +672,8 @@ sub ship_report {
     my $pid = $self->{current}->{planet_id};
     my ($spaceport) = $self->find_buildings('SpacePort');
     return if not ($spaceport);
-    $self->{ship_info}->{$self->{planet_names}->{$pid}} = $spaceport->view_all_ships->{ships};
+    my @ships = @{ $spaceport->view_all_ships( { no_paging => 1 } )->{ships} };
+    $self->{ship_info}->{$self->{planet_names}->{$pid}} = \@ships;
 }
 
 sub recycling {
