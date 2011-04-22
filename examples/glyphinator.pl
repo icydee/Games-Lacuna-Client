@@ -188,6 +188,11 @@ while (!$finished) {
             $e->rethrow;
         } else {
             my $e = Exception::Class->caught();
+            if ($e =~ /malformed JSON string/) {
+                diag("Caught malformed JSON error, restarting\n");
+                $status = {};
+                redo;
+            }
             ref $e ? $e->rethrow : die $e;
         }
     }
