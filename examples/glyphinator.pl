@@ -40,6 +40,8 @@ use Exception::Class;
 use lib "$FindBin::Bin/../lib";
 use Games::Lacuna::Client;
 
+$| = 1;
+
 my @batches;
 my $current_batch = 0;
 my $batch_opt_cb = sub {
