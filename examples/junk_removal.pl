@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 ## Junk building trash removal.
 ## Will use the highest available junk building (that is not built) to purge.
@@ -15,12 +15,14 @@ my $planet_name;
 my $x_loc    = 5;
 my $y_loc    = -5;
 my $demolish = 1;
+my $keep     = 0;
 
 GetOptions(
     'planet=s'  => \$planet_name,
     'x=i'       => \$x_loc,
     'y=i'       => \$y_loc,
     'demolish!' => \$demolish,
+    'keep=i'    => \$keep,
 );
 
 my $cfg_file = shift(@ARGV) || 'lacuna.yml';
@@ -126,7 +128,7 @@ foreach my $planet_id ( sort keys %$planets ) {
             }
 
             $last = 1
-              if $waste_stored < $waste_cost;
+              if $waste_stored < $waste_cost + $keep;
 
             $junk->demolish( $ok->{building}->{id} )
               unless !$demolish && $last;
@@ -150,6 +152,7 @@ CONFIG_FILE	 defaults to 'lacuna.yml'
 --planet is the planet you want to remove trash from.
 --x is the x-coordinate of the building location, defaults to 5
 --y is the y-coordinate of the building location, defaults to -5
+--keep is the minimum amount of waste to not destroy, defaults to 0
 
 You must at least have access to the Junk Henge to use this script.
 
