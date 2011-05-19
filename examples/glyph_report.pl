@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use FindBin;
 use lib "$FindBin::Bin/../lib";
-use List::Util            (qw( first sum ));
+use List::Util            (qw( first min sum ));
 use Games::Lacuna::Client ();
 use Getopt::Long          (qw(GetOptions));
 
@@ -100,6 +100,8 @@ foreach my $name ( sort keys %planets ) {
 
 creation_summary(%all_glyphs);
 
+print "\nTotal Glyphs: " . sum(values %all_glyphs) . "\n";
+
 # Print out a pretty table of what we can make.
 sub creation_summary {
     my %contents = @_;
@@ -115,7 +117,7 @@ sub creation_summary {
     for my $title ( @keys )
     {
         print _c_('bold white'), "\n$title\n", "=" x length $title, "\n", _c_('reset');
-        printf qq{%-30s%-10s%s\n}, "Building", "Missing", "Glyph Combine Order";
+        printf qq{%-30s%-10s%-10s%s\n}, "Building", "Possible", "Missing", "Glyph Combine Order";
         print q{-} x 80, "\n";
         my %recipes = %{$yml->{$title}};
         for my $glyph ( keys %recipes ){
@@ -140,7 +142,7 @@ sub creation_summary {
                 4   => _c_('red'),
             }->{$ready{$glyph}};
 
-            printf qq{%s%-30s%s%-10d}, $c, $glyph, _c_('reset'), $ready{$glyph};
+            printf qq{%s%-30s%s%-10d%-10d}, $c, $glyph, _c_('reset'), min(@contents{@{$recipes{$glyph}{order}}}), $ready{$glyph};
             # Print build order.
             my @out;
             for my $ordered ( @{$recipes{$glyph}{order}} ){
