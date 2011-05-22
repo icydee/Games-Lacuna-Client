@@ -98,7 +98,9 @@ foreach my $name ( sort keys %planets ) {
     print "\n";
 }
 
+my $all_halls = 0;
 creation_summary(%all_glyphs);
+print "Total Halls: $all_halls\n";
 
 print "\nTotal Glyphs: " . sum(values %all_glyphs) . "\n";
 
@@ -143,6 +145,7 @@ sub creation_summary {
             }->{$ready{$glyph}};
 
             printf qq{%s%-30s%s%-10d%-10d}, $c, $glyph, _c_('reset'), min(@contents{@{$recipes{$glyph}{order}}}), $ready{$glyph};
+            $all_halls += min(@contents{@{$recipes{$glyph}{order}}}) if $glyph =~ /^Halls of Vrbansk /;
             # Print build order.
             my @out;
             for my $ordered ( @{$recipes{$glyph}{order}} ){
@@ -413,7 +416,7 @@ Functional Recipes:
       fluorite: 1
       beryl: 1
       magnetite: 1
-  Halls of Vrbasnk (E):
+  Halls of Vrbansk (E):
     order:
       - rutile
       - chromite
