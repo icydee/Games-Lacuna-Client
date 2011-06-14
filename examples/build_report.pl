@@ -10,28 +10,41 @@ use Getopt::Long          qw(GetOptions);
 use Games::Lacuna::Client ();
 
 my $planet_name;
-my $use_seconds_left = 0;
 
 GetOptions(
     'planet=s' => \$planet_name,
-    'seconds!' => \$use_seconds_left,
 );
-require Time::Duration if $use_seconds_left;
 
-my $cfg_file = Games::Lacuna::Client->get_config_file([shift(@ARGV) || 'lacuna.yml']);
+my $cfg_file = shift(@ARGV) || 'lacuna.yml';
+unless ( $cfg_file and -e $cfg_file ) {
+  $cfg_file = eval{
+    require File::HomeDir;
+    require File::Spec;
+    my $dist = File::HomeDir->my_dist_config('Games-Lacuna-Client');
+    File::Spec->catfile(
+      $dist,
+      'login.yml'
+    ) if $dist;
+  };
+  unless ( $cfg_file and -e $cfg_file ) {
+    die "Did not provide a config file";
+  }
+}
 
 my $client = Games::Lacuna::Client->new(
-	cfg_file => $cfg_file,
-	# debug    => 1,
+    cfg_file => $cfg_file,
+    # debug    => 1,
 );
+
+my @types = qw( food ore water energy waste );
 
 # Load the planets
 my $empire  = $client->empire->get_status->{empire};
-my $planets = {reverse(%{$empire->{planets}})};
+my $planets = $empire->{planets};
 
 # Scan each planet
-foreach my $name ( sort keys %$planets ) {
-    my $planet_id = $planets->{$name};
+foreach my $planet_id ( sort keys %$planets ) {
+    my $name = $planets->{$planet_id};
 
     next if defined $planet_name && $planet_name ne $name;
 
@@ -39,25 +52,27 @@ foreach my $name ( sort keys %$planets ) {
     my $planet    = $client->body( id => $planet_id );
     my $result    = $planet->get_buildings;
     my $buildings = $result->{buildings};
-    
+
     my @build;
-    
+
     for my $building_id ( sort keys %$buildings ) {
         push @build, $buildings->{$building_id}
             if $buildings->{$building_id}{pending_build};
     }
-    
+
     next if !@build;
-    
+
     print "$name\n";
     print "=" x length $name;
     print "\n";
-    
-    for my $building (sort { $a->{pending_build}{seconds_remaining} <=> $b->{pending_build}{seconds_remaining} } @build) {
+
+    for my $building (
+            sort { $a->{pending_build}{seconds_remaining} <=> $b->{pending_build}{seconds_remaining} }
+            @build) {
         printf "%s: %s\n",
             $building->{name},
-            $use_seconds_left ? Time::Duration::duration($building->{pending_build}{seconds_remaining}) : $building->{pending_build}{end};
+            scalar localtime(time + $building->{pending_build}{seconds_remaining})
     }
-    
+
     print "\n";
 }

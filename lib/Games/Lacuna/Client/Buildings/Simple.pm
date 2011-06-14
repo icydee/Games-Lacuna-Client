@@ -24,9 +24,6 @@ our @BuildingTypes = (qw(
     Beach8
     Beach9
     Beach10
-    Beach11
-    Beach12
-    Beach13
     Bean
     Beeldeban
     BeeldebanNest

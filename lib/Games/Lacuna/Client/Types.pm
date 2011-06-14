@@ -76,7 +76,6 @@ our %EXPORT_TAGS = (
         command => [qw(
             Archaeology
             ArtMuseum
-            BlackHoleGenerator
             Capitol
             CloakingLab
             CulinaryInstitute
@@ -155,19 +154,6 @@ our %EXPORT_TAGS = (
         glyph => [qw(
             AlgaePond
             AmalgusMeadow
-            Beach1
-            Beach10
-            Beach11
-            Beach12
-            Beach13
-            Beach2
-            Beach3
-            Beach4
-            Beach5
-            Beach6
-            Beach7
-            Beach8
-            Beach9
             BeeldebanNest
             CitadelOfKnope
             CrashedShipSite
@@ -184,15 +170,6 @@ our %EXPORT_TAGS = (
             Lagoon
             Lake
             LapisForest
-            LCOTA
-            LCOTB
-            LCOTC
-            LCOTD
-            LCOTE
-            LCOTF
-            LCOTG
-            LCOTH
-            LCOTI
             LibraryOfJith
             MalcudField
             MassadsHenge
@@ -232,7 +209,6 @@ our %EXPORT_TAGS = (
         )],
         waste => [qw(
             DeployedBleeder
-            WasteExchanger
             WasteRecycling
             WasteTreatment
         )],
@@ -281,23 +257,9 @@ our %EXPORT_TAGS = (
         Archaeology => [qw(command glyph infrastructure)],
         ArtMuseum => [qw(command space_station_module)],
         AtmosphericEvaporator => [qw(water)],
-        Beach1 => [qw(decoration glyph)],
-        Beach10 => [qw(decoration glyph)],
-        Beach11 => [qw(decoration glyph)],
-        Beach12 => [qw(decoration glyph)],
-        Beach13 => [qw(decoration glyph)],
-        Beach2 => [qw(decoration glyph)],
-        Beach3 => [qw(decoration glyph)],
-        Beach4 => [qw(decoration glyph)],
-        Beach5 => [qw(decoration glyph)],
-        Beach6 => [qw(decoration glyph)],
-        Beach7 => [qw(decoration glyph)],
-        Beach8 => [qw(decoration glyph)],
-        Beach9 => [qw(decoration glyph)],
         Bean => [qw(food)],
         Beeldeban => [qw(food)],
         BeeldebanNest => [qw(food glyph)],
-        BlackHoleGenerator => [qw(command energy space_station_module)],
         Bread => [qw(food)],
         Burger => [qw(food)],
         Capitol => [qw(command infrastructure)],
@@ -341,15 +303,6 @@ our %EXPORT_TAGS = (
         JunkHengeSculpture => [qw(happiness infrastructure sculpture waste)],
         KalavianRuins => [qw(glyph happiness)],
         KasternsKeep => [qw(glyph)],
-        LCOTA => [qw(glyph)],
-        LCOTB => [qw(glyph)],
-        LCOTC => [qw(glyph)],
-        LCOTD => [qw(glyph)],
-        LCOTE => [qw(glyph)],
-        LCOTF => [qw(glyph)],
-        LCOTG => [qw(glyph)],
-        LCOTH => [qw(glyph)],
-        LCOTI => [qw(glyph)],
         Lagoon => [qw(decoration glyph)],
         Lake => [qw(decoration glyph)],
         Lapis => [qw(food)],
@@ -416,7 +369,6 @@ our %EXPORT_TAGS = (
         Warehouse => [qw(command space_station_module storage)],
         WasteDigester => [qw(ore waste)],
         WasteEnergy => [qw(energy waste)],
-        WasteExchanger => [qw(waste)],
         WasteRecycling => [qw(waste)],
         WasteSequestration => [qw(storage waste)],
         WasteTreatment => [qw(waste)],

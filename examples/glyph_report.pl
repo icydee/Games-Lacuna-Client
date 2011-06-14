@@ -18,8 +18,6 @@ GetOptions(
     'planet=s' => \$planet_name,
     'c|color!' => \$Games::Lacuna::Client::PrettyPrint::ansi_color,
     't|type=s' => sub { $opt_glyph_type->{$_[1]} = 1; },
-    'f|functional!' => sub { $opt_glyph_type->{'Functional Recipes'} = 1; },
-    'd|decorative!' => sub { $opt_glyph_type->{'Decorative Recipes'} = 1; },
 );
 
 my $cfg_file = shift(@ARGV) || 'lacuna.yml';
@@ -47,13 +45,13 @@ my $client = Games::Lacuna::Client->new(
 my $empire  = $client->empire->get_status->{empire};
 
 # reverse hash, to key by name instead of id
-my %planets = reverse %{ $empire->{planets} };
+my %planets = map { $empire->{planets}{$_}, $_ } keys %{ $empire->{planets} };
 
 # Scan each planet
 my %all_glyphs;
 foreach my $name ( sort keys %planets ) {
 
-    next if defined $planet_name && lc $planet_name ne lc $name;
+    next if defined $planet_name && $planet_name ne $name;
 
     # Load planet data
     my $planet    = $client->body( id => $planets{$name} );
@@ -149,7 +147,7 @@ sub creation_summary {
                 if(not $Games::Lacuna::Client::PrettyPrint::ansi_color) {
                     $no_color_ask = $remaining{$glyph}{$ordered} ? '*' : '';
                 }
-                $segment .= sprintf qq{%-15s}, $ordered . ($no_color_ask );
+                $segment .= sprintf qq{%-15s}, $ordered . ' (' . ($contents{$ordered} || 0) . ')' . ($no_color_ask );
                 $segment .= _c_('reset');
                 push @out, $segment;
             }
@@ -286,13 +284,6 @@ Decorative Recipes:
     quantity:
       trona: 1
 Functional Recipes:
-  Algae Pond:
-    order:
-      - uraninite
-      - methane
-    quantity:
-      methane: 1
-      uraninite: 1
   Amalgus Meadow:
     order:
       - beryl
@@ -300,15 +291,13 @@ Functional Recipes:
     quantity:
       beryl: 1
       trona: 1
-  Beeldeban Nest:
+  Algae Pond:
     order:
-      - anthracite
-      - trona
-      - kerogen
+      - uraninite
+      - methane
     quantity:
-      anthracite: 1
-      trona: 1
-      kerogen: 1
+      methane: 1
+      uraninite: 1
   Citadel of Knope:
     order:
       - beryl
@@ -356,17 +345,6 @@ Functional Recipes:
     quantity:
       chalcopyrite: 1
       sulfur: 1
-  Gratch's Gauntlet:
-    order:
-      - chromite
-      - bauxite
-      - gold
-      - kerogen
-    quantity:
-      chromite: 1
-      bauxite: 1
-      gold: 1
-      kerogen: 1
   Halls of Vrbansk (A):
     order:
       - goethite
@@ -459,17 +437,6 @@ Functional Recipes:
     quantity:
       halite: 1
       magnetite: 1
-  Oracle of Anid:
-    order:
-      - gold
-      - uraninite
-      - bauxite
-      - goethite
-    quantity:
-      bauxite: 1
-      goethite: 1
-      gold: 1
-      uraninite: 1
   Pantheon of Hagness:
     order:
       - gypsum

@@ -42,7 +42,7 @@ my $client = Games::Lacuna::Client->new(
 my $empire  = $client->empire->get_status->{empire};
 
 # reverse hash, to key by name instead of id
-my %planets = reverse %{ $empire->{planets} };
+my %planets = map { $empire->{planets}{$_}, $_ } keys %{ $empire->{planets} };
 
 my @spaceports;
 
@@ -98,4 +98,9 @@ foreach my $ship (sort $by_arrival @ships) {
   die unless ref($from) eq 'HASH';
   die unless ref($to) eq 'HASH';
   print $ship->{type_human},' from ',$from->{name},' to ',$to->{name}," arrives in $hours hours ($arrives)\n";
+  if ($ship->{payload} and @{$ship->{payload}}) {
+    for (@{$ship->{payload}}) {
+      print "    $_\n";
+    }
+  }
 }

@@ -40,7 +40,7 @@ my $client = Games::Lacuna::Client->new(
 my $empire  = $client->empire->get_status->{empire};
 
 # reverse hash, to key by name instead of id
-my %planets = reverse %{ $empire->{planets} };
+my %planets = map { $empire->{planets}{$_}, $_ } keys %{ $empire->{planets} };
 
 # Scan each planet
 for my $name ( sort keys %planets ) {
@@ -53,9 +53,9 @@ for my $name ( sort keys %planets ) {
     
     my $buildings = $result->{buildings};
 
-    # Find the Deployed Bleeders
+    # Find the Archaeology Ministry
     my @bleeders = grep {
-            $buildings->{$_}->{url} eq '/deployedbleeder'
+            $buildings->{$_}->{url} eq 'deployedbleeder'
     } keys %$buildings;
     
     if (@bleeders) {

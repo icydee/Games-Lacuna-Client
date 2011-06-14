@@ -11,24 +11,17 @@ use FindBin;
 use lib "$FindBin::Bin/../lib";
 use Games::Lacuna::Client ();
 
-my @old_planet;
-my @station;
-my @ignore;
+my @planet;
 my @pass;
 my $help;
 
 GetOptions(
-    'planet=s@'  => \@old_planet,
-    'station=s@' => \@station,
-    'ignore=s@'  => \@ignore,
-    'pass=s@'    => \@pass,
-    'help|h'     => \$help,
+    'planet=s@' => \@planet,
+    'pass=s@'   => \@pass,
+    'help|h'    => \$help,
 );
 
 usage() if $help;
-
-die "--planet opt has been renamed to --station\n"
-    if @old_planet;
 
 my $cfg_file = shift(@ARGV) || 'lacuna.yml';
 unless ( $cfg_file and -e $cfg_file ) {
@@ -50,20 +43,18 @@ my $is_interactive = is_interactive();
 
 my $client = Games::Lacuna::Client->new(
 	cfg_file  => $cfg_file,
-	rpc_sleep => 2,
+	# debug    => 1,
 );
 
 # Load the planets
 my $empire  = $client->empire->get_status->{empire};
 
 # reverse hash, to key by name instead of id
-my %planets = reverse %{ $empire->{planets} };
+my %planets = map { $empire->{planets}{$_}, $_ } keys %{ $empire->{planets} };
 
 SS:
 for my $name ( sort keys %planets ) {
-    next if @station && !grep { lc $name eq lc $_ } @station;
-    
-    next if @ignore && first { lc $name eq lc $_ } @ignore;
+    next if @planet && !grep { $name eq $_ } @planet;
     
     my $planet = $client->body( id => $planets{$name} );
     
@@ -78,8 +69,6 @@ for my $name ( sort keys %planets ) {
     my $parliament_id = first {
             $buildings->{$_}->{url} eq '/parliament'
         } keys %$buildings;
-    
-    next if !defined $parliament_id;
     
     my $parliament = $client->building( id => $parliament_id, type => 'Parliament' );
     
@@ -156,23 +145,15 @@ Usage: $0 CONFIG_FILE
 Prompts for vote on each proposition.
 
 Options:
-    --station STATION NAME
+    --planet SPACE-STATION NAME
 
-Multiple --station opts may be provided.
-If no --station opts are provided, will search for all allied space-stations.
-
-    --ignore PLANET/STATION NAME
-Save RPCs by specifying your planet names, so we don't have to get its status
-from the server to find that out.
+Multiple --planet opts may be provided.
+If no --planet opts are provided, will search for all allied space-stations.
 
     --pass REGEX
 Multiple --pass opts may be provided - these are run as regexes against each
 proposition description - if it matches, the proposition is automatically
 voted 'yes'.
-
-Changes:
-The --planet opt has been renamed to --station.
-Using --planet will throw an error.
 
 END_USAGE
 

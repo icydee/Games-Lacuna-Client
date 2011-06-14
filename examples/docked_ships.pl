@@ -47,26 +47,25 @@ my $client = Games::Lacuna::Client->new(
 my $empire  = $client->empire->get_status->{empire};
 
 # reverse hash, to key by name instead of id
-my %planets = reverse %{ $empire->{planets} };
+my %planets = map { $empire->{planets}{$_}, $_ } keys %{ $empire->{planets} };
 
 my $total_str     = 'Total Docks';
 my $mining_str    = 'Ships Mining';
 my $defend_str    = 'Ships on remote Defense';
-my $excavator_str = 'Ships Excavating';
 my $available_str = 'Docks Available';
 my @all_ships;
 
 # Scan each planet
 foreach my $name ( sort keys %planets ) {
 
-    next if defined $opts{planet} && lc $opts{planet} ne lc $name;
+    next if defined $opts{planet} && $opts{planet} ne $name;
 
     # Load planet data
     my $planet    = $client->body( id => $planets{$name} );
     my $result    = $planet->get_buildings;
-    my $buildings = $result->{buildings};
+    my $body      = $result->{status}->{body};
     
-    next if $result->{status}{body}{type} eq 'space station';
+    my $buildings = $result->{buildings};
 
     # Find the first Space Port
     my $space_port_id = List::Util::first {
@@ -79,15 +78,14 @@ foreach my $name ( sort keys %planets ) {
     
     my $space_port = $client->building( id => $space_port_id, type => 'SpacePort' );
     
-    my $mining_count    = 0;
-    my $defend_count    = 0;
-    my $excavator_count = 0;
+    my $mining_count = 0;
+    my $defend_count = 0;
     my $filter;
     
     push @{ $filter->{task} }, 'Mining'
         if $opts{mining};
     
-    push @{ $filter->{task} }, 'Travelling'
+    push @{ $filter->{task} }, 'Travelling  '
         if $opts{travelling};
     
     my $ships = $space_port->view_all_ships(
@@ -105,12 +103,6 @@ foreach my $name ( sort keys %planets ) {
     $defend_count +=
         grep {
             $_->{task} eq 'Defend'
-        } @$ships;
-    
-    $excavator_count +=
-        grep {
-               $_->{task} eq 'Travelling'
-            && $_->{type} eq 'excavator'
         } @$ships;
     
     @$ships =
@@ -136,12 +128,6 @@ foreach my $name ( sort keys %planets ) {
         printf "%${max_length}s: %d\n",
             $defend_str,
             $defend_count
-    }
-    
-    if ( $excavator_count ) {
-        printf "%${max_length}s: %d\n",
-            $excavator_str,
-            $excavator_count
     }
     
     printf "%${max_length}s: %d\n",
