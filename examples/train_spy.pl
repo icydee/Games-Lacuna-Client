@@ -77,7 +77,10 @@ unless ( $building_id ) {
 
 my $building = $client->building( id => $building_id, type => $trainhash{ $assignment } );
 
+SPY:
 for my $spy ( @{ $intel->view_spies->{spies} } ) {
+
+    next SPY unless $spy->{assignment} eq 'Idle';
 
     my $return;
     eval {
