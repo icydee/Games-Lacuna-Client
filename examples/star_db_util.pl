@@ -83,6 +83,9 @@ if (-f $db_file) {
     }
 }
 $star_db->{AutoCommit} = 0;
+my($stars_inserted, $stars_updated) = (0, 0);
+my($orbitals_inserted, $orbitals_updated) = (0, 0);
+my($empires_inserted) = 0;
 
 if ($opts{'merge-db'}) {
     unless (-f $opts{'merge-db'}) {
@@ -216,9 +219,14 @@ unless ($opts{'no-fetch'}) {
 
         my $obs = find_observatory($buildings);
         if ($obs) {
+            my $probed_stars;
             my $page = 1;
             verbose("Getting page $page of probed stars...\n");
-            my $probed_stars = $obs->get_probed_stars($page);
+            eval { $probed_stars = $obs->get_probed_stars($page); };
+            my $err = $@;
+            if ($err) {
+                verbose("$err\n");
+                next; }
             push(@stars, @{ $probed_stars->{'stars'} });
             while ($probed_stars->{star_count} > $page * 25) {
                 $page++;
@@ -261,7 +269,11 @@ unless ($opts{'no-fetch'}) {
     output("$db_file is now up-to-date with your probe data\n");
 }
 
+output("$stars_inserted stars added, and $stars_updated updated\n");
+output("$orbitals_inserted orbitals added, and $orbitals_updated updated\n");
+output("$empires_inserted empires added\n");
 output("$glc->{total_calls} api calls made.\n") if $glc->{total_calls};
+output("You have made $glc->{rpc_count} calls today\n") if $glc->{rpc_count};
 undef $glc;
 exit 0;
 
@@ -331,6 +343,7 @@ sub ore_types {
         $insert_star ||= $star_db->prepare('insert into stars (id, name, x, y, color, zone, last_checked) values (?,?,?,?,?,?,?)');
         $insert_star->execute($id, $name, $x, $y, $color, $zone, $when)
             or die "Can't insert star: " . $insert_star->errstr;
+        $stars_inserted++;
     }
 }
 
@@ -345,6 +358,7 @@ sub ore_types {
         output("Updating star at $x, $y to name $name, color $color, zone $zone\n");
         $update_star ||= $star_db->prepare(q{update stars set last_checked = ?, name = ?, color = ?, zone = ? where x = ? and y = ?});
         $update_star->execute($when, $name, $color, $zone, $x, $y);
+        $stars_updated++;
     }
 }
 
@@ -405,6 +419,7 @@ sub ore_types {
             or die( "Can't insert orbital: " . $insert_orbital->errstr);
 
         update_empire($body->{empire}) if $body->{empire} and $body->{empire}->{name};
+        $orbitals_inserted++;
     }
 }
 
@@ -442,6 +457,7 @@ sub ore_types {
             or die("Can't update orbital: " . $update_orbital->errstr);
 
         update_empire($body->{empire}) if $body->{empire} and $body->{empire}{name};
+        $orbitals_updated;
     }
 }
 
@@ -454,6 +470,7 @@ sub update_empire {
     unless ($exists) {
         output("Inserting empire $empire->{name} ($empire->{id})\n");
         $star_db->do('insert into empires (id, name) values (?,?)', {}, $empire->{id}, $empire->{name});
+        $empires_inserted++;
     }
 }
 
