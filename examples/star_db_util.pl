@@ -244,37 +244,7 @@ unless ($opts{'no-fetch'}) {
         my %seen;
         @stars = grep { ! $seen{$_->{'name'}}++ } @stars;
 
-        for my $star (@stars) {
-            if (my $row = star_exists($star->{x}, $star->{y})) {
-                if ((($row->{name}||q{}) ne $star->{name})
-                        or (($row->{color}||q{}) ne $star->{color})
-                        or (($row->{zone}||q{}) ne $star->{zone})) {
-                    update_star($star)
-                } else {
-                    mark_star_checked(@{$row}{qw/x y/});
-                }
-            } else {
-                insert_star($star);
-            }
-
-            if ($star->{bodies} and @{$star->{bodies}}) {
-                for my $body (@{$star->{bodies}}) {
-                    if (my $row = orbital_exists($body->{x}, $body->{y})) {
-                        if ((($row->{type}||q{}) ne $body->{type})
-                                or (($row->{name}||q{}) ne $body->{name})
-                                or ($body->{empire} and ($row->{empire_id}||q{}) ne $body->{empire}{id})
-                                or (defined($body->{size}) and ($row->{size}||q{}) ne $body->{size}) ) {
-                            update_orbital($body);
-                        } else {
-                            mark_orbital_checked(@{$body}{qw/x y/});
-                        }
-                    } else {
-                        insert_orbital($body);
-                    }
-                }
-            }
-        }
-
+		star_data(@stars);
     }
 }
 
@@ -294,6 +264,42 @@ unless ($opts{'no-fetch'}) {
 output("$glc->{total_calls} api calls made.\n") if $glc->{total_calls};
 undef $glc;
 exit 0;
+
+sub star_data {
+my(@stars) = @_;
+    for my $star (@stars) {
+		#verbose("Recording star $star->{x}, $star->{y}\n");
+        if (my $row = star_exists($star->{x}, $star->{y})) {
+            if ((($row->{name}||q{}) ne $star->{name})
+                    or (($row->{color}||q{}) ne $star->{color})
+                    or (($row->{zone}||q{}) ne $star->{zone})) {
+                update_star($star)
+            } else {
+                mark_star_checked(@{$row}{qw/x y/});
+            }
+        } else {
+            insert_star($star);
+        }
+
+        if ($star->{bodies} and @{$star->{bodies}}) {
+            for my $body (@{$star->{bodies}}) {
+                if (my $row = orbital_exists($body->{x}, $body->{y})) {
+                    if ((($row->{type}||q{}) ne $body->{type})
+                            or (($row->{name}||q{}) ne $body->{name})
+                            or ($body->{empire} and ($row->{empire_id}||q{}) ne $body->{empire}{id})
+                            or (defined($body->{size}) and ($row->{size}||q{}) ne $body->{size}) ) {
+                        update_orbital($body);
+                    } else {
+                        mark_orbital_checked(@{$body}{qw/x y/});
+                    }
+                } else {
+                    insert_orbital($body);
+                }
+            }
+        }
+    }
+    sleep(1);
+}
 
 sub ore_types {
     return qw{
@@ -368,7 +374,7 @@ sub ore_types {
     sub insert_orbital {
         my ($body) = @_;
         my @body_fields = qw{ body_id star_id orbit x y type name water size };
-        output(sprintf  "Inserting %s at %d, %d\n", $body->{'type'}, $body->{'x'}, $body->{'y'});
+        output(sprintf  "Inserting %s at %d, %d, star %d\n", $body->{'type'}, $body->{'x'}, $body->{'y'}, $body->{'star_id'});
 
         my $when = $body->{last_checked} || strftime "%Y-%m-%d %T", gmtime;
 
