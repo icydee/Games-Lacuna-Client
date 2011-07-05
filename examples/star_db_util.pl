@@ -398,7 +398,7 @@ sub ore_types {
         $insert_orbital->execute(@insert_vars)
             or die( "Can't insert orbital: " . $insert_orbital->errstr);
 
-        update_empire($body->{empire}) if $body->{empire} and $body->{empire}{name};
+        update_empire($body->{empire}) if $body->{empire} and $body->{empire}->{name};
     }
 }
 
