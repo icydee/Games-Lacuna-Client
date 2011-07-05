@@ -101,8 +101,6 @@ if ($opts{'merge-db'}) {
         $get_stars = $star_db->prepare(<<SQL);
 select s2.*, strftime('%s', s2.last_checked) checked_epoch
 from d2.stars s2
-join stars s1 on s1.id = s2.id
-    and coalesce(s2.last_checked, 0) >= coalesce(s1.last_checked,0)
 SQL
         $get_stars->execute;
         return 1;
@@ -118,13 +116,13 @@ SQL
             die $e;
         }
     }
-    while (my $star = $get_stars->fetchrow_hashref) {
-        if (my $row = star_exists($star->{x}, $star->{y})) {
-            if (($star->{checked_epoch}||0) >= ($row->{checked_epoch}||0)) {
-                update_star($star)
+    while (my $row = $get_stars->fetchrow_hashref) {
+        if (my $star = star_exists($row->{x}, $row->{y})) {
+            if (($row->{checked_epoch}||0) >= ($star->{checked_epoch}||0)) {
+                update_star($row);
             }
         } else {
-            insert_star($star);
+            insert_star($row);
         }
     }
 
@@ -134,9 +132,6 @@ SQL
         $get_orbitals = $star_db->prepare(<<SQL);
 select o2.*, strftime('%s', o2.last_checked) checked_epoch
 from d2.orbitals o2
-join orbitals o1 on o1.star_id = o2.star_id
-    and o1.orbit = o2.orbit
-    and coalesce(o2.last_checked, 0) >= coalesce(o1.last_checked,0)
 SQL
         $get_orbitals->execute;
         return 1;
@@ -152,26 +147,20 @@ SQL
             die $e;
         }
     }
-    while (my $orbital = $get_orbitals->fetchrow_hashref) {
+    while (my $row = $get_orbitals->fetchrow_hashref) {
         # Check if it exists in the star db, and if so what its type is
-        if (my $row = orbital_exists($orbital->{x}, $orbital->{y})) {
-            if (($orbital->{checked_epoch}||0) >= ($row->{checked_epoch}||0)) {
+        if (my $orbital = orbital_exists($row->{x}, $row->{y})) {
+            if (($row->{checked_epoch}||0) >= ($orbital->{checked_epoch}||0)) {
                 update_orbital( {
-                    empire => { id => $orbital->{empire_id} },
-                    (map { $_ => $orbital->{$_} } qw/x y type name water size/),
-                    ore => { map { $_ => $orbital->{$_} } ore_types() },
-                    last_checked => $orbital->{last_checked},
-                    image => $orbital->{subtype},
+                    empire => { id => $row->{empire_id} },
+                    (map { $_ => $row->{$_} } qw/x y type name water size/),
+                    ore => { map { $_ => $row->{$_} } ore_types() },
+                    last_checked => $row->{last_checked},
+                    image => $row->{subtype},
                 } );
             }
         } else {
-            insert_orbital( {
-                empire => { id =>  $orbital->{empire_id} },
-                (map { $_ => $orbital->{$_} } qw/body_id star_id orbit x y type name water size/),
-                ore => { map { $_ => $orbital->{$_} } ore_types() },
-                last_checked => $orbital->{last_checked},
-                image => $orbital->{subtype},
-            } );
+            insert_orbital($row);
         }
     }
 
@@ -455,9 +444,8 @@ sub ore_types {
 
         $update_orbital->execute(@update_vars)
             or die("Can't update orbital: " . $update_orbital->errstr);
-
         update_empire($body->{empire}) if $body->{empire} and $body->{empire}{name};
-        $orbitals_updated;
+        $orbitals_updated++;
     }
 }
 
