@@ -113,7 +113,8 @@ use Data::Dumper;
 
         # https://us1.lacunaexpanse.com
         my $uri = $gov->{client}->{uri};
-
+		$uri =~ s/https/http/;
+		
         return $gov->{_static_stars}{$uri} if $gov->{_static_stars}{$uri};
 
         # http://us-east-1.lacunaexpanse.com.s3.amazonaws.com/stars.csv
@@ -239,6 +240,11 @@ use Data::Dumper;
         my %pid_loc = map { $_ => [@{$gov->{status}{$_}}{qw(x y)}]; } keys %{$gov->{status}{empire}{planets}};
         PLANET:
         while( my ($pid, $planet_xy) = each %pid_loc ){
+            my $name = $gov->{status}{empire}{planets}{$pid};
+            my $config = $gov->{config}->{colony};
+            next if $config->{$name}{exclude};
+#            print Dumper $config;
+#            last;
             my ($planet_x, $planet_y) = @$planet_xy;
             if( not defined $planet_x or not defined $planet_y ){
                 warning(
@@ -311,10 +317,16 @@ use Data::Dumper;
         PLANET:
         for my $pid ( keys %docked_probes ){
             my $closest_stars = $distances_by_planet->{$pid};
+            #print Dumper $closest_stars, "\n";
             STAR:
             for my $star ( @{$closest_stars} ){
                 next PLANET if not $probe_cnt{$pid};
                 next STAR if $traveling_probes{$star} or $closest_launch{$star};
+                my $dist = $planet_distances->{$pid}{$star};
+                my $min = $gov->{config}->{astronomer}->{min_dist};
+                my $max = $gov->{config}->{astronomer}->{max_dist};
+                next STAR if ($dist <= $min) or ($dist >= $max);
+                print "Star: $star, dist: $dist\n";
                 $closest_launch{$star} = $pid;
                 push @{$probe_from_planet{$pid}}, $star;
                 $probe_cnt{$pid}--;
