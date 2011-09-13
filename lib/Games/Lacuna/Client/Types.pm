@@ -76,7 +76,6 @@ our %EXPORT_TAGS = (
         command => [qw(
             Archaeology
             ArtMuseum
-            BlackHoleGenerator
             Capitol
             CloakingLab
             CulinaryInstitute
@@ -169,6 +168,7 @@ our %EXPORT_TAGS = (
             Beach8
             Beach9
             BeeldebanNest
+            BlackHoleGenerator
             CitadelOfKnope
             CrashedShipSite
             Crater
@@ -297,7 +297,7 @@ our %EXPORT_TAGS = (
         Bean => [qw(food)],
         Beeldeban => [qw(food)],
         BeeldebanNest => [qw(food glyph)],
-        BlackHoleGenerator => [qw(command energy)],
+        BlackHoleGenerator => [qw(command glyph)],
         Bread => [qw(food)],
         Burger => [qw(food)],
         Capitol => [qw(command infrastructure)],
