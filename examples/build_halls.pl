@@ -71,6 +71,7 @@ if ($opts{type}) {
 # Scan each planet
 my (%glyphs, %archmins, %plan_count);
 for my $planet_name (sort keys %planets) {
+  eval {
     if (keys %do_planets) {
         next unless $do_planets{normalize_planet($planet_name)};
     }
@@ -109,6 +110,10 @@ for my $planet_name (sort keys %planets) {
     for my $glyph (@$glyphs) {
         push @{$glyphs{$planet_name}{$glyph->{type}}}, $glyph->{id};
     }
+    1;
+  } or do {
+    print "$@ on $planet_name; continuing...\n";
+  }
 }
 
 my (%possible_builds, $all_possible);
