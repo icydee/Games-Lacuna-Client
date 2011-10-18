@@ -72,6 +72,7 @@ if ($opts{type}) {
 my (%glyphs, %archmins, %plan_count);
 for my $planet_name (sort keys %planets) {
   eval {
+    no warnings 'exiting';
     if (keys %do_planets) {
         next unless $do_planets{normalize_planet($planet_name)};
     }
