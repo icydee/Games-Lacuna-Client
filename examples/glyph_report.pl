@@ -22,7 +22,7 @@ GetOptions(
     'd|decorative!' => sub { $opt_glyph_type->{'Decorative Recipes'} = 1; },
 );
 
-my $cfg_file = shift(@ARGV) || 'lacuna.yml';
+my $cfg_file = shift(@ARGV) || 'lacuna.yml' unless $ARGV[0] and $ARGV[0] =~ /\-/;
 unless ( $cfg_file and -e $cfg_file ) {
   $cfg_file = eval{
     require File::HomeDir;
@@ -39,9 +39,9 @@ unless ( $cfg_file and -e $cfg_file ) {
 }
 
 my $client = Games::Lacuna::Client->new(
-        cfg_file  => $cfg_file,
+    cfg_file  => $cfg_file,
     rpc_sleep => 2,
-        # debug    => 1,
+    # debug    => 1,
 );
 
 # Load the planets
