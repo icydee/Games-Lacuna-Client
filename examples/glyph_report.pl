@@ -96,7 +96,7 @@ creation_summary(%all_glyphs);
 
 print "\nTotal Halls: $all_halls\n";
 print "Total Glyphs: " . sum(values %all_glyphs) . "\n";
-print localtime . "\n";
+print localtime() . "\n";
 
 exit;
 
