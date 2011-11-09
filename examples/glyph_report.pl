@@ -93,6 +93,9 @@ foreach my $name ( sort keys %planets ) {
 
 my $all_halls = 0;
 creation_summary(%all_glyphs);
+print "Total Halls: $all_halls\n";
+
+print "\nTotal Glyphs: " . sum(values %all_glyphs) . "\n";
 
 print "\nTotal Halls: $all_halls\n";
 print "Total Glyphs: " . sum(values %all_glyphs) . "\n";
