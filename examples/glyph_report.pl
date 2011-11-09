@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 
 use strict;
 use warnings;
@@ -51,7 +51,7 @@ my $empire  = $client->empire->get_status->{empire};
 my %planets = reverse %{ $empire->{planets} };
 
 # Scan each planet
-my %all_glyphs;
+my %all_glyphs = map { $_, 0 } qw( anthracite bauxite beryl chalcopyrite chromite fluorite galena goethite gold gypsum halite kerogen magnetite methane monazite rutile sulfur trona uraninite zircon );
 foreach my $name ( sort keys %planets ) {
 
     next if defined $planet_name && lc $planet_name ne lc $name;
