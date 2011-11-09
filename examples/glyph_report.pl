@@ -1,10 +1,10 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 use strict;
 use warnings;
 use FindBin;
 use lib "$FindBin::Bin/../lib";
-use List::Util            (qw( first sum ));
+use List::Util            (qw( first min sum ));
 use Games::Lacuna::Client ();
 use Getopt::Long          (qw(GetOptions));
 
@@ -39,7 +39,8 @@ unless ( $cfg_file and -e $cfg_file ) {
 }
 
 my $client = Games::Lacuna::Client->new(
-	cfg_file => $cfg_file,
+	cfg_file  => $cfg_file,
+    rpc_sleep => 2,
 	# debug    => 1,
 );
 
@@ -62,15 +63,7 @@ foreach my $name ( sort keys %planets ) {
     
     my $buildings = $result->{buildings};
 
-    # Find the Archaeology Ministry
-    my $arch_id = first {
-            $buildings->{$_}->{name} eq 'Archaeology Ministry'
-    } keys %$buildings;
-
-    next if not $arch_id;
-    
-    my $arch   = $client->building( id => $arch_id, type => 'Archaeology' );
-    my $glyphs = $arch->get_glyphs->{glyphs};
+    my $glyphs = get_glyphs( $client, $buildings );
     
     next if !@$glyphs;
     
@@ -98,7 +91,48 @@ foreach my $name ( sort keys %planets ) {
     print "\n";
 }
 
+my $all_halls = 0;
 creation_summary(%all_glyphs);
+
+print "\nTotal Halls: $all_halls\n";
+print "Total Glyphs: " . sum(values %all_glyphs) . "\n";
+print localtime . "\n";
+
+exit;
+
+
+sub get_glyphs {
+    my ( $client, $buildings ) = @_;
+    
+    my $id;
+    my $type;
+    
+    # Find the Archaeology Ministry
+    my $arch_id = first {
+            $buildings->{$_}->{url} eq '/archaeology'
+    } keys %$buildings;
+
+    if ( $arch_id ) {
+        $id   = $arch_id;
+        $type = 'Archaeology';
+    }
+    else {
+        my $trade_id = first {
+                $buildings->{$_}->{url} eq '/trade'
+        } keys %$buildings;
+        
+        if ( $trade_id ) {
+            $id   = $trade_id;
+            $type = 'Trade';
+        }
+    }
+    
+    return [] if !$id;
+    
+    my $building = $client->building( id => $id, type => $type );
+    
+    return $building->get_glyphs->{glyphs};
+}
 
 # Print out a pretty table of what we can make.
 sub creation_summary {
@@ -115,7 +149,7 @@ sub creation_summary {
     for my $title ( @keys )
     {
         print _c_('bold white'), "\n$title\n", "=" x length $title, "\n", _c_('reset');
-        printf qq{%-30s%-10s%s\n}, "Building", "Missing", "Glyph Combine Order";
+        printf qq{%-30s%-10s%-10s%s\n}, "Building", "Possible", "Missing", "Glyph Combine Order";
         print q{-} x 80, "\n";
         my %recipes = %{$yml->{$title}};
         for my $glyph ( keys %recipes ){
@@ -140,7 +174,8 @@ sub creation_summary {
                 4   => _c_('red'),
             }->{$ready{$glyph}};
 
-            printf qq{%s%-30s%s%-10d}, $c, $glyph, _c_('reset'), $ready{$glyph};
+            printf qq{%s%-30s%s%-10d%-10d}, $c, $glyph, _c_('reset'), min(@contents{@{$recipes{$glyph}{order}}}), $ready{$glyph};
+            $all_halls += min(@contents{@{$recipes{$glyph}{order}}}) if $glyph =~ /^Halls of Vrbansk /;
             # Print build order.
             my @out;
             for my $ordered ( @{$recipes{$glyph}{order}} ){
@@ -164,7 +199,6 @@ sub _c_ {
 }
 
 __DATA__
-%YAML 1.1
 ---
 Decorative Recipes:
   Beach 1 (Land E):
@@ -411,7 +445,7 @@ Functional Recipes:
       fluorite: 1
       beryl: 1
       magnetite: 1
-  Halls of Vrbasnk (E):
+  Halls of Vrbansk (E):
     order:
       - rutile
       - chromite
@@ -521,4 +555,3 @@ Functional Recipes:
     quantity:
       magnetite: 1
       uraninite: 1
-...
