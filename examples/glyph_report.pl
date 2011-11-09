@@ -39,9 +39,9 @@ unless ( $cfg_file and -e $cfg_file ) {
 }
 
 my $client = Games::Lacuna::Client->new(
-	cfg_file  => $cfg_file,
+        cfg_file  => $cfg_file,
     rpc_sleep => 2,
-	# debug    => 1,
+        # debug    => 1,
 );
 
 # Load the planets
@@ -60,42 +60,39 @@ foreach my $name ( sort keys %planets ) {
     my $planet    = $client->body( id => $planets{$name} );
     my $result    = $planet->get_buildings;
     my $body      = $result->{status}->{body};
-    
+
     my $buildings = $result->{buildings};
 
     my $glyphs = get_glyphs( $client, $buildings );
-    
+
     next if !@$glyphs;
-    
+
     printf "%s\n", $name;
     print "=" x length $name;
     print "\n";
-    
+
     @$glyphs = sort { $a->{type} cmp $b->{type} } @$glyphs;
-    
+
     my %glyphs;
-    
+
     for my $glyph (@$glyphs) {
         $glyphs{$glyph->{type}}++;
-        
+
         $all_glyphs{$glyph->{type}} = 0 if not $all_glyphs{$glyph->{type}};
         $all_glyphs{$glyph->{type}}++;
     }
-    
+
     map {
         printf "%s (%d)\n", ucfirst( $_ ), $glyphs{$_};
     } sort keys %glyphs;
-    
+
     printf "\t(%d glyphs)\n", sum values %glyphs;
-    
+
     print "\n";
 }
 
 my $all_halls = 0;
 creation_summary(%all_glyphs);
-print "Total Halls: $all_halls\n";
-
-print "\nTotal Glyphs: " . sum(values %all_glyphs) . "\n";
 
 print "\nTotal Halls: $all_halls\n";
 print "Total Glyphs: " . sum(values %all_glyphs) . "\n";
@@ -106,10 +103,10 @@ exit;
 
 sub get_glyphs {
     my ( $client, $buildings ) = @_;
-    
+
     my $id;
     my $type;
-    
+
     # Find the Archaeology Ministry
     my $arch_id = first {
             $buildings->{$_}->{url} eq '/archaeology'
@@ -123,17 +120,17 @@ sub get_glyphs {
         my $trade_id = first {
                 $buildings->{$_}->{url} eq '/trade'
         } keys %$buildings;
-        
+
         if ( $trade_id ) {
             $id   = $trade_id;
             $type = 'Trade';
         }
     }
-    
+
     return [] if !$id;
-    
+
     my $building = $client->building( id => $id, type => $type );
-    
+
     return $building->get_glyphs->{glyphs};
 }
 
