@@ -162,7 +162,7 @@ while (!$finished) {
         # case you get the "Session expired" error.
         $glc = Games::Lacuna::Client->new(
             cfg_file       => $opts{config} || "$FindBin::Bin/../lacuna.yml",
-            rpc_sleep      => 1,
+            rpc_sleep      => 1.333, # 45 per minute, new default is 50 rpc/min
         );
 
         output("Starting up at " . localtime() . "\n");
@@ -234,7 +234,7 @@ sub get_status {
     my $empire = $glc->empire->get_status->{empire};
 
     # reverse hash, to key by name instead of id
-    my %planets = reverse %{ $empire->{planets} };
+    my %planets = map { $empire->{planets}{$_}, $_ } keys %{$empire->{planets}};
     $status->{planets} = \%planets;
 
     # Scan each planet
