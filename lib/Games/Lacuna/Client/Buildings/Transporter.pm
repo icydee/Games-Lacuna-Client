@@ -16,6 +16,7 @@ sub api_methods {
     get_prisoners         => { default_args => [qw(session_id building_id)] },
     get_plans             => { default_args => [qw(session_id building_id)] },
     get_glyphs            => { default_args => [qw(session_id building_id)] },
+    get_glyph_summary     => { default_args => [qw(session_id building_id)] },
     withdraw_from_market  => { default_args => [qw(session_id building_id)] },
     accept_from_market    => { default_args => [qw(session_id building_id)] },
     view_market           => { default_args => [qw(session_id building_id)] },
