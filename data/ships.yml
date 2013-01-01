@@ -2,7 +2,9 @@
 barge:
   type_human: Barge
   tags:
+    - Intelligence
     - Mining
+    - SupplyChain
     - Trade
 bleeder:
   type_human: Bleeder
@@ -13,6 +15,7 @@ cargo_ship:
   tags:
     - Intelligence
     - Mining
+    - SupplyChain
     - Trade
 colony_ship:
   type_human: Colony Ship
@@ -27,6 +30,7 @@ dory:
   tags:
     - Intelligence
     - Mining
+    - SupplyChain
     - Trade
 drone:
   type_human: Drone
@@ -40,15 +44,21 @@ fighter:
   type_human: Fighter
   tags:
     - War
+fissure_sealer:
+  type_human: Fissure Sealer
+  tags:
+    - Exploration
 freighter:
   type_human: Freighter
   tags:
     - Mining
+    - SupplyChain
     - Trade
 galleon:
   type_human: Galleon
   tags:
     - Mining
+    - SupplyChain
     - Trade
 gas_giant_settlement_ship:
   type_human: Gas Giant Settlement Ship
@@ -58,6 +68,19 @@ hulk:
   type_human: Hulk
   tags:
     - Mining
+    - SupplyChain
+    - Trade
+hulk_fast:
+  type_human: Hulk Fast
+  tags:
+    - Mining
+    - SupplyChain
+    - Trade
+hulk_huge:
+  type_human: Hulk Huge
+  tags:
+    - Mining
+    - SupplyChain
     - Trade
 mining_platform_ship:
   type_human: Mining Platform Ship
@@ -105,6 +128,22 @@ scow:
   type_human: Scow
   tags:
     - War
+    - WasteChain
+scow_fast:
+  type_human: Scow Fast
+  tags:
+    - War
+    - WasteChain
+scow_large:
+  type_human: Scow Large
+  tags:
+    - War
+    - WasteChain
+scow_mega:
+  type_human: Scow Mega
+  tags:
+    - War
+    - WasteChain
 security_ministry_seeker:
   type_human: Security Ministry Seeker
   tags:

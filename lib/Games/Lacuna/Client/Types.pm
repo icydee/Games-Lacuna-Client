@@ -623,7 +623,9 @@ our %EXPORT_TAGS = (
         barge => {
             type_human => 'Barge',
             tags       => [
+                'Intelligence',
                 'Mining',
+                'SupplyChain',
                 'Trade',
             ],
         },
@@ -638,6 +640,7 @@ our %EXPORT_TAGS = (
             tags       => [
                 'Intelligence',
                 'Mining',
+                'SupplyChain',
                 'Trade',
             ],
         },
@@ -658,6 +661,7 @@ our %EXPORT_TAGS = (
             tags       => [
                 'Intelligence',
                 'Mining',
+                'SupplyChain',
                 'Trade',
             ],
         },
@@ -679,10 +683,17 @@ our %EXPORT_TAGS = (
                 'War',
             ],
         },
+        fissure_sealer => {
+            type_human => 'Fissure Sealer',
+            tags       => [
+                'Exploration',
+            ],
+        },
         freighter => {
             type_human => 'Freighter',
             tags       => [
                 'Mining',
+                'SupplyChain',
                 'Trade',
             ],
         },
@@ -690,6 +701,7 @@ our %EXPORT_TAGS = (
             type_human => 'Galleon',
             tags       => [
                 'Mining',
+                'SupplyChain',
                 'Trade',
             ],
         },
@@ -703,6 +715,23 @@ our %EXPORT_TAGS = (
             type_human => 'Hulk',
             tags       => [
                 'Mining',
+                'SupplyChain',
+                'Trade',
+            ],
+        },
+        hulk_fast => {
+            type_human => 'Hulk Fast',
+            tags       => [
+                'Mining',
+                'SupplyChain',
+                'Trade',
+            ],
+        },
+        hulk_huge => {
+            type_human => 'Hulk Huge',
+            tags       => [
+                'Mining',
+                'SupplyChain',
                 'Trade',
             ],
         },
@@ -772,6 +801,28 @@ our %EXPORT_TAGS = (
             type_human => 'Scow',
             tags       => [
                 'War',
+                'WasteChain',
+            ],
+        },
+        scow_fast => {
+            type_human => 'Scow Fast',
+            tags       => [
+                'War',
+                'WasteChain',
+            ],
+        },
+        scow_large => {
+            type_human => 'Scow Large',
+            tags       => [
+                'War',
+                'WasteChain',
+            ],
+        },
+        scow_mega => {
+            type_human => 'Scow Mega',
+            tags       => [
+                'War',
+                'WasteChain',
             ],
         },
         security_ministry_seeker => {
@@ -898,7 +949,7 @@ our %EXPORT_TAGS = (
         return keys %ships;
     }
     sub ship_tags_list {
-        my @tags = qw( Colonization Exploration Intelligence Mining Trade War );
+        my @tags = qw( Colonization Exploration Intelligence Mining SupplyChain Trade War WasteChain );
         return wantarray ? @tags : [@tags];
     }
     sub ship_tags {
