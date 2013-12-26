@@ -29,13 +29,13 @@ use List::MoreUtils qw(any);
 require Exporter;
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw( food_types ore_types ship_types ship_attribute_types get_tags tag_list meta_building_list meta_type meta_type_list building_label building_type_from_label ship_tags_list ship_tags ship_type_human is_food_type is_ore_type );
+our @EXPORT = qw( food_types ore_types ship_types ship_attribute_types building_types building_labels get_tags tag_list meta_building_list meta_type meta_type_list building_label building_type_from_label building_glyph_recipes building_requires_ores ship_tags_list ship_tags ship_type_human ship_berth_level is_food_type is_ore_type );
 our %EXPORT_TAGS = (
-    list     => [qw( food_types ore_types ship_types ship_attribute_types )],
+    list     => [qw( food_types ore_types ship_types ship_attribute_types building_types building_labels )],
     resource => [qw( food_types ore_types )],
     tag      => [qw( get_tags tag_list )],
-    meta     => [qw( meta_building_list meta_type meta_type_list building_label building_type_from_label )],
-    ship     => [qw( ship_types ship_attribute_types ship_tags_list ship_tags ship_type_human )],
+    meta     => [qw( meta_building_list meta_type meta_type_list building_label building_type_from_label building_glyph_recipes building_requires_ores )],
+    ship     => [qw( ship_types ship_attribute_types ship_tags_list ship_tags ship_type_human ship_berth_level )],
     is       => [qw( is_food_type is_ore_type )],
     all      => [@EXPORT],
 );
@@ -178,6 +178,7 @@ our %EXPORT_TAGS = (
             Crater
             DentonBrambles
             EssentiaVein
+            Fissure
             GeoThermalVent
             GratchsGauntlet
             Grove
@@ -327,6 +328,7 @@ our %EXPORT_TAGS = (
         Espionage => [qw(command infrastructure intelligence)],
         EssentiaVein => [qw(essentia glyph)],
         Fission => [qw(energy)],
+        Fissure => [qw(glyph)],
         FoodReserve => [qw(food storage)],
         Fusion => [qw(energy)],
         GasGiantLab => [qw(command infrastructure ship)],
@@ -490,6 +492,7 @@ our %EXPORT_TAGS = (
         Espionage => "Espionage Ministry",
         EssentiaVein => "Essentia Vein",
         Fission => "Fission Reactor",
+        Fissure => "Fissure",
         FoodReserve => "Food Reserve",
         Fusion => "Fusion Reactor",
         GasGiantLab => "Gas Giant Lab",
@@ -503,7 +506,7 @@ our %EXPORT_TAGS = (
         HallsOfVrbansk => "Halls of Vrbansk",
         HydroCarbon => "Hydrocarbon Energy Plant",
         IBS => "Interstellar Broadcast System",
-        IntelTraining => "Intel Training Facility",
+        IntelTraining => "Intel Training",
         Intelligence => "Intelligence Ministry",
         InterDimensionalRift => "Interdimensional Rift",
         JunkHengeSculpture => "Junk Henge Sculpture",
@@ -527,7 +530,7 @@ our %EXPORT_TAGS = (
         Malcud => "Malcud Fungus Farm",
         MalcudField => "Malcud Field",
         MassadsHenge => "Massad's Henge",
-        MayhemTraining => "Mayhem Training Facility",
+        MayhemTraining => "Mayhem Training",
         MercenariesGuild => "Mercenaries Guild",
         MetalJunkArches => "Metal Junk Arches",
         Mine => "Mine",
@@ -550,7 +553,7 @@ our %EXPORT_TAGS = (
         PilotTraining => "Pilot Training Facility",
         PlanetaryCommand => "Planetary Command Center",
         PoliceStation => "Police Station",
-        PoliticsTraining => "Politics Training Facility",
+        PoliticsTraining => "Politics Training",
         Potato => "Potato Pancake Factory",
         Propulsion => "Propulsion System Factory",
         PyramidJunkSculpture => "Pyramid Junk Sculpture",
@@ -578,7 +581,7 @@ our %EXPORT_TAGS = (
         TerraformingLab => "Terraforming Lab",
         TerraformingPlatform => "Terraforming Platform",
         TheDillonForge => "The Dillon Forge",
-        TheftTraining => "Theft Training Facility",
+        TheftTraining => "Theft Training",
         ThemePark => "Theme Park",
         Trade => "Trade Ministry",
         Transporter => "Subspace Transporter",
@@ -597,25 +600,118 @@ our %EXPORT_TAGS = (
         WaterStorage => "Water Storage Tank",
         Wheat => "Wheat Farm",
     );
-    
+
     sub building_label{
         my( $building ) = @_;
         return $label{$building};
     }
-    
+
     my %type_from_label =
         map {
             my $name = lc $label{$_};
             $name =~ s/[^\w]//g;
             $name => $_
         } keys %label;
-    
+
     sub building_type_from_label {
         my( $name ) = @_;
         return unless defined $name;
         $name = lc $name;
         $name =~ s/[^\w]//g;
         return $type_from_label{$name};
+    }
+    
+    sub building_types {
+        my @types = keys %label;
+        return wantarray ? @types : [@types];
+    }
+    
+    sub building_labels {
+        my @labels = values %label;
+        return wantarray ? @labels : [@labels];
+    }
+}
+{
+    my %recipes = (
+        AlgaePond => [[qw( uraninite methane)], ],
+        AmalgusMeadow => [[qw( beryl trona)], ],
+        Beach1 => [[qw( gypsum)], ],
+        Beach10 => [[qw( gypsum methane)], ],
+        Beach11 => [[qw( gypsum chromite)], ],
+        Beach12 => [[qw( gypsum goethite)], ],
+        Beach13 => [[qw( gypsum galena)], ],
+        Beach2 => [[qw( gypsum gypsum)], ],
+        Beach3 => [[qw( gypsum magnetite)], ],
+        Beach4 => [[qw( gypsum uraninite)], ],
+        Beach5 => [[qw( gypsum halite)], ],
+        Beach6 => [[qw( gypsum rutile)], ],
+        Beach7 => [[qw( gypsum chalcopyrite)], ],
+        Beach8 => [[qw( gypsum sulfur)], ],
+        Beach9 => [[qw( gypsum anthracite)], ],
+        BeeldebanNest => [[qw( anthracite trona kerogen)], ],
+        BlackHoleGenerator => [[qw( kerogen beryl anthracite monazite)], ],
+        CitadelOfKnope => [[qw( beryl sulfur monazite galena)], ],
+        CrashedShipSite => [[qw( monazite trona gold bauxite)], ],
+        Crater => [[qw( rutile)], ],
+        DentonBrambles => [[qw( rutile geothite)], ],
+        GasGiantPlatform => [[qw( sulfur methane galena anthracite)], ],
+        GeoThermalVent => [[qw( chalcopyrite sulfur)], ],
+        GratchsGauntlet => [[qw( chromite bauxite gold kerogen)], ],
+        Grove => [[qw( methane)], ],
+        HallsOfVrbansk => [[qw( goethite halite gypsum trona)], [qw( gold anthracite uraninite bauxite)], [qw( kerogen methane sulfur zircon)], [qw( monazite fluorite beryl magnetite)], [qw( rutile chromite chalcopyrite galena)], ],
+        InterDimensionalRift => [[qw( methane zircon fluorite)], ],
+        KalavianRuins => [[qw( galena gold)], ],
+        Lagoon => [[qw( chalcopyrite)], ],
+        Lake => [[qw( goethite)], ],
+        LapisForest => [[qw( halite anthracite)], ],
+        LibraryOfJith => [[qw( anthracite bauxite beryl chalcopyrite)], ],
+        MalcudField => [[qw( fluorite kerogen)], ],
+        NaturalSpring => [[qw( magnetite halite)], ],
+        OracleOfAnid => [[qw( gold uraninite bauxite goethite)], ],
+        PantheonOfHagness => [[qw( gypsum trona beryl anthracite)], ],
+        Ravine => [[qw( zircon methane galena fluorite)], ],
+        RockyOutcrop => [[qw( trona)], ],
+        Sand => [[qw( bauxite)], ],
+        TempleOfTheDrajilites => [[qw( kerogen rutile chromite chalcopyrite)], ],
+        TerraformingLab => [[qw( methane zircon magnetite beryl)], ],
+        Volcano => [[qw( magnetite uraninite)], ],
+    );
+    sub building_glyph_recipes{
+        my( $building ) = @_;
+        return if !exists $recipes{$building};
+        return wantarray ? @{ $recipes{$building} } : $recipes{$building}[0];
+    }
+}
+{
+    my %requires_ores = (
+        Apple => [qw( gysum monazite sulfur )],
+        Bean => [qw( gysum monazite sulfur )],
+        CloakingLab => [qw( bauxite chalcopyrite gold )],
+        Corn => [qw( gysum monazite sulfur )],
+        Dairy => [qw( trona )],
+        Denton => [qw( gysum monazite sulfur )],
+        Fission => [qw( monazite uraninite )],
+        Fusion => [qw( galena halite )],
+        GasGiantLab => [qw( beryl chromite bauxite goethite magnetite rutile )],
+        GasGiantPlatform => [qw( beryl chromite bauxite goethite magnetite rutile )],
+        HydroCarbon => [qw( anthracite kerogen methane )],
+        Lapis => [qw( gysum monazite sulfur )],
+        MunitionsLab => [qw( monazite uraninite )],
+        OreRefinery => [qw( fluorite sulfur )],
+        PilotTraining => [qw( gold )],
+        Potato => [qw( gysum monazite sulfur )],
+        Propulsion => [qw( bauxite beryl chromite goethite magnetite rutile )],
+        SAW => [qw( bauxite chalcopyrite chromite gold magnetite monazite rutile )],
+        TerraformingPlatform => [qw( gysum monazite sulfur )],
+        WasteEnergy => [qw( beryl gypsum zircon )],
+        WasteTreatment => [qw( halite sulfur trona )],
+        WaterReclamation => [qw( halite sulfur )],
+        Wheat => [qw( gysum monazite sulfur )],
+    );
+    sub building_requires_ores{
+        my( $building ) = @_;
+        return if !exists $requires_ores{$building};
+        return wantarray ? @{ $requires_ores{$building} } : $requires_ores{$building}[0];
     }
 }
 {
@@ -628,12 +724,14 @@ our %EXPORT_TAGS = (
                 'SupplyChain',
                 'Trade',
             ],
+            berth_level => 1,
         },
         bleeder => {
             type_human => 'Bleeder',
             tags       => [
                 'War',
             ],
+            berth_level => 1,
         },
         cargo_ship => {
             type_human => 'Cargo Ship',
@@ -643,18 +741,21 @@ our %EXPORT_TAGS = (
                 'SupplyChain',
                 'Trade',
             ],
+            berth_level => 1,
         },
         colony_ship => {
             type_human => 'Colony Ship',
             tags       => [
                 'Colonization',
             ],
+            berth_level => 1,
         },
         detonator => {
             type_human => 'Detonator',
             tags       => [
                 'War',
             ],
+            berth_level => 1,
         },
         dory => {
             type_human => 'Dory',
@@ -664,24 +765,28 @@ our %EXPORT_TAGS = (
                 'SupplyChain',
                 'Trade',
             ],
+            berth_level => 1,
         },
         drone => {
             type_human => 'Drone',
             tags       => [
                 'War',
             ],
+            berth_level => 1,
         },
         excavator => {
             type_human => 'Excavator',
             tags       => [
                 'Exploration',
             ],
+            berth_level => 1,
         },
         fighter => {
             type_human => 'Fighter',
             tags       => [
                 'War',
             ],
+            berth_level => 1,
         },
         fissure_sealer => {
             type_human => 'Fissure Sealer',
@@ -696,6 +801,7 @@ our %EXPORT_TAGS = (
                 'SupplyChain',
                 'Trade',
             ],
+            berth_level => 1,
         },
         galleon => {
             type_human => 'Galleon',
@@ -704,12 +810,14 @@ our %EXPORT_TAGS = (
                 'SupplyChain',
                 'Trade',
             ],
+            berth_level => 1,
         },
         gas_giant_settlement_ship => {
             type_human => 'Gas Giant Settlement Ship',
             tags       => [
                 'Colonization',
             ],
+            berth_level => 1,
         },
         hulk => {
             type_human => 'Hulk',
@@ -734,54 +842,79 @@ our %EXPORT_TAGS = (
                 'SupplyChain',
                 'Trade',
             ],
+            berth_level => 20,
+        },
+        hulk_fast => {
+            type_human => 'Hulk Fast',
+            tags       => [
+                'Mining',
+                'Trade',
+            ],
+            berth_level => 25,
+        },
+        hulk_huge => {
+            type_human => 'Hulk Huge',
+            tags       => [
+                'Mining',
+                'Trade',
+            ],
+            berth_level => 30,
         },
         mining_platform_ship => {
             type_human => 'Mining Platform Ship',
             tags       => [
                 'Mining',
             ],
+            berth_level => 1,
         },
         observatory_seeker => {
             type_human => 'Observatory Seeker',
             tags       => [
                 'War',
             ],
+            berth_level => 1,
         },
         placebo => {
             type_human => 'Placebo',
             tags       => [
                 'War',
             ],
+            berth_level => 1,
         },
         placebo2 => {
             type_human => 'Placebo II',
             tags       => [
                 'War',
             ],
+            berth_level => 1,
         },
         placebo3 => {
             type_human => 'Placebo III',
             tags       => [
                 'War',
             ],
+            berth_level => 1,
         },
         placebo4 => {
             type_human => 'Placebo IV',
             tags       => [
                 'War',
             ],
+            berth_level => 1,
         },
         placebo5 => {
             type_human => 'Placebo V',
             tags       => [
                 'War',
             ],
+            berth_level => 1,
         },
         placebo6 => {
             type_human => 'Placebo VI',
             tags       => [
                 'War',
             ],
+            berth_level => 1,
         },
         probe => {
             type_human => 'Probe',
@@ -789,6 +922,7 @@ our %EXPORT_TAGS = (
                 'Exploration',
                 'Intelligence',
             ],
+            berth_level => 1,
         },
         scanner => {
             type_human => 'Scanner',
@@ -796,6 +930,7 @@ our %EXPORT_TAGS = (
                 'Exploration',
                 'Intelligence',
             ],
+            berth_level => 1,
         },
         scow => {
             type_human => 'Scow',
@@ -824,18 +959,42 @@ our %EXPORT_TAGS = (
                 'War',
                 'WasteChain',
             ],
+            berth_level => 1,
+        },
+        scow_fast => {
+            type_human => 'Scow Fast',
+            tags       => [
+                'War',
+            ],
+            berth_level => 20,
+        },
+        scow_large => {
+            type_human => 'Scow Large',
+            tags       => [
+                'War',
+            ],
+            berth_level => 15,
+        },
+        scow_mega => {
+            type_human => 'Scow Mega',
+            tags       => [
+                'War',
+            ],
+            berth_level => 25,
         },
         security_ministry_seeker => {
             type_human => 'Security Ministry Seeker',
             tags       => [
                 'War',
             ],
+            berth_level => 1,
         },
         short_range_colony_ship => {
             type_human => 'Short Range Colony Ship',
             tags       => [
                 'Colonization',
             ],
+            berth_level => 1,
         },
         smuggler_ship => {
             type_human => 'Smuggler Ship',
@@ -844,24 +1003,28 @@ our %EXPORT_TAGS = (
                 'Mining',
                 'Trade',
             ],
+            berth_level => 1,
         },
         snark => {
             type_human => 'Snark',
             tags       => [
                 'War',
             ],
+            berth_level => 1,
         },
         snark2 => {
             type_human => 'Snark II',
             tags       => [
                 'War',
             ],
+            berth_level => 1,
         },
         snark3 => {
             type_human => 'Snark III',
             tags       => [
                 'War',
             ],
+            berth_level => 1,
         },
         space_station => {
             type_human => 'Space Station Hull',
@@ -869,54 +1032,63 @@ our %EXPORT_TAGS = (
                 'Intelligence',
                 'War',
             ],
+            berth_level => 1,
         },
         spaceport_seeker => {
             type_human => 'Spaceport Seeker',
             tags       => [
                 'War',
             ],
+            berth_level => 1,
         },
         spy_pod => {
             type_human => 'Spy Pod',
             tags       => [
                 'Intelligence',
             ],
+            berth_level => 1,
         },
         spy_shuttle => {
             type_human => 'Spy Shuttle',
             tags       => [
                 'Intelligence',
             ],
+            berth_level => 1,
         },
         stake => {
             type_human => 'Stake',
             tags       => [
                 'Colonization',
             ],
+            berth_level => 1,
         },
         supply_pod => {
             type_human => 'Supply Pod',
             tags       => [
                 'Colonization',
             ],
+            berth_level => 1,
         },
         supply_pod2 => {
             type_human => 'Supply Pod II',
             tags       => [
                 'Colonization',
             ],
+            berth_level => 1,
         },
         supply_pod3 => {
             type_human => 'Supply Pod III',
             tags       => [
                 'Colonization',
             ],
+            berth_level => 1,
         },
         supply_pod4 => {
             type_human => 'Supply Pod IV',
             tags       => [
                 'Colonization',
             ],
+            berth_level => 1,
         },
         surveyor => {
             type_human => 'Surveyor',
@@ -924,24 +1096,28 @@ our %EXPORT_TAGS = (
                 'Exploration',
                 'Intelligence',
             ],
+            berth_level => 1,
         },
         sweeper => {
             type_human => 'Sweeper',
             tags       => [
                 'War',
             ],
+            berth_level => 1,
         },
         terraforming_platform_ship => {
             type_human => 'Terraforming Platform Ship',
             tags       => [
                 'Colonization',
             ],
+            berth_level => 1,
         },
         thud => {
             type_human => 'Thud',
             tags       => [
                 'War',
             ],
+            berth_level => 1,
         },
     );
 
@@ -962,6 +1138,11 @@ our %EXPORT_TAGS = (
         my( $type ) = @_;
         return unless $type;
         return $ships{$type}{type_human};
+    }
+    sub ship_berth_level {
+        my( $type ) = @_;
+        return unless $type;
+        return $ships{$type}{berth_level};
     }
 }
 1;
@@ -988,6 +1169,10 @@ Games::Lacuna::Client::Types
 
 =item ship_attribute_types
 
+=item building_types
+
+=item building_labels
+
 =item ship_attribute_types
 
 =item get_tags
@@ -1004,6 +1189,10 @@ Games::Lacuna::Client::Types
 
 =item building_type_from_label
 
+=item building_glyph_recipes
+
+=item building_requires_ores
+
 =item ship_types
 
 =item ship_attribute_types
@@ -1013,6 +1202,8 @@ Games::Lacuna::Client::Types
 =item ship_tags
 
 =item ship_type_human
+
+=item ship_berth_level
 
 =item is_food_type
 

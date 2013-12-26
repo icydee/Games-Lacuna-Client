@@ -16,6 +16,8 @@ AlgaePond:
     - food
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ uraninite, methane ]
 AmalgusMeadow:
   label: Amalgus Meadow
   produces: food
@@ -23,6 +25,8 @@ AmalgusMeadow:
     - food
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ beryl, trona ]
 Apple:
   label: Apple Orchard
   produces: food
@@ -30,6 +34,10 @@ Apple:
     orbit:
       - 3
     phosphorus: ~
+  requires_ores:
+    - gysum
+    - monazite
+    - sulfur
   tags:
     - food
   type: food
@@ -58,78 +66,104 @@ Beach1:
     - decoration
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ gypsum ]
 Beach10:
   label: 'Beach [10]'
   tags:
     - decoration
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ gypsum, methane ]
 Beach11:
   label: 'Beach [11]'
   tags:
     - decoration
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ gypsum, chromite ]
 Beach12:
   label: 'Beach [12]'
   tags:
     - decoration
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ gypsum, goethite ]
 Beach13:
   label: 'Beach [13]'
   tags:
     - decoration
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ gypsum, galena ]
 Beach2:
   label: 'Beach [2]'
   tags:
     - decoration
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ gypsum, gypsum ]
 Beach3:
   label: 'Beach [3]'
   tags:
     - decoration
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ gypsum, magnetite ]
 Beach4:
   label: 'Beach [4]'
   tags:
     - decoration
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ gypsum, uraninite ]
 Beach5:
   label: 'Beach [5]'
   tags:
     - decoration
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ gypsum, halite ]
 Beach6:
   label: 'Beach [6]'
   tags:
     - decoration
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ gypsum, rutile ]
 Beach7:
   label: 'Beach [7]'
   tags:
     - decoration
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ gypsum, chalcopyrite ]
 Beach8:
   label: 'Beach [8]'
   tags:
     - decoration
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ gypsum, sulfur ]
 Beach9:
   label: 'Beach [9]'
   tags:
     - decoration
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ gypsum, anthracite ]
 Bean:
   label: Amalgus Bean Plantation
   produces: food
@@ -137,6 +171,10 @@ Bean:
     orbit:
       - 4
     phosphorus: ~
+  requires_ores:
+    - gysum
+    - monazite
+    - sulfur
   tags:
     - food
   type: food
@@ -162,12 +200,16 @@ BeeldebanNest:
     - food
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ anthracite, trona, kerogen ]
 BlackHoleGenerator:
   label: Black Hole Generator
   tags:
     - glyph
     - command
   type: glyph
+  glyph_recipes:
+    - [ kerogen, beryl, anthracite, monazite ]
 Bread:
   label: Bread Bakery
   produces: food
@@ -242,8 +284,14 @@ CitadelOfKnope:
     - glyph
     - ship
   type: glyph
+  glyph_recipes:
+    - [ beryl, sulfur, monazite, galena ]
 CloakingLab:
   label: Cloaking Lab
+  requires_ores:
+    - bauxite
+    - chalcopyrite
+    - gold
   tags:
     - command
     - infrastructure
@@ -257,6 +305,10 @@ Corn:
       - 2
       - 3
     phosphorus: ~
+  requires_ores:
+    - gysum
+    - monazite
+    - sulfur
   tags:
     - food
   type: food
@@ -277,12 +329,16 @@ CrashedShipSite:
     - glyph
     - ship
   type: glyph
+  glyph_recipes:
+    - [ monazite, trona, gold, bauxite ]
 Crater:
   label: Crater
   tags:
     - decoration
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ rutile ]
 CulinaryInstitute:
   label: Culinary Institute
   tags:
@@ -297,6 +353,8 @@ Dairy:
     orbit:
       - 3
     trona: ~
+  requires_ores:
+    - trona
   tags:
     - food
   type: food
@@ -308,6 +366,10 @@ Denton:
       - 5
       - 6
     phosphorus: ~
+  requires_ores:
+    - gysum
+    - monazite
+    - sulfur
   tags:
     - food
   type: food
@@ -318,6 +380,8 @@ DentonBrambles:
     - food
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ rutile, geothite ]
 DeployedBleeder:
   label: Deployed Bleeder
   produces: waste
@@ -383,9 +447,17 @@ Fission:
   produces: energy
   requires:
     university: 6
+  requires_ores:
+    - monazite
+    - uraninite
   tags:
     - energy
   type: energy
+Fissure:
+  label: Fissure
+  tags:
+    - glyph
+  type: glyph
 FoodReserve:
   label: Food Reserve
   stores:
@@ -399,11 +471,21 @@ Fusion:
   produces: energy
   requires:
     university: 9
+  requires_ores:
+    - galena
+    - halite
   tags:
     - energy
   type: energy
 GasGiantLab:
   label: Gas Giant Lab
+  requires_ores:
+    - beryl
+    - chromite
+    - bauxite
+    - goethite
+    - magnetite
+    - rutile
   tags:
     - command
     - infrastructure
@@ -411,11 +493,20 @@ GasGiantLab:
   type: command
 GasGiantPlatform:
   label: Gas Giant Settlement Platform
+  requires_ores:
+    - beryl
+    - chromite
+    - bauxite
+    - goethite
+    - magnetite
+    - rutile
   tags:
     - command
     - infrastructure
     - ship
   type: command
+  glyph_recipes:
+    - [ sulfur, methane, galena, anthracite ]
 GeneticsLab:
   label: Genetics Lab
   tags:
@@ -437,11 +528,15 @@ GeoThermalVent:
     - energy
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ chalcopyrite, sulfur ]
 GratchsGauntlet:
   label: Gratch's Gauntlet
   tags:
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ chromite, bauxite, gold, kerogen ]
 GreatBallOfJunk:
   label: Great Ball of Junk
   produces: happiness
@@ -457,16 +552,28 @@ Grove:
     - decoration
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ methane ]
 HallsOfVrbansk:
   label: Halls of Vrbansk
   tags:
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ goethite, halite, gypsum, trona ]
+    - [ gold, anthracite, uraninite, bauxite ]
+    - [ kerogen, methane, sulfur, zircon ]
+    - [ monazite, fluorite, beryl, magnetite ]
+    - [ rutile, chromite, chalcopyrite, galena ]
 HydroCarbon:
   label: Hydrocarbon Energy Plant
   produces: energy
   requires:
     university: 1
+  requires_ores:
+    - anthracite
+    - kerogen
+    - methane
   tags:
     - energy
   type: energy
@@ -477,7 +584,7 @@ IBS:
     - space_station_module
   type: command
 IntelTraining:
-  label: Intel Training Facility
+  label: Intel Training
   tags:
     - command
     - infrastructure
@@ -498,6 +605,8 @@ InterDimensionalRift:
     - glyph
     - storage
   type: glyph
+  glyph_recipes:
+    - [ methane, zircon, fluorite ]
 JunkHengeSculpture:
   label: Junk Henge Sculpture
   produces: happiness
@@ -514,6 +623,8 @@ KalavianRuins:
     - glyph
     - happiness
   type: glyph
+  glyph_recipes:
+    - [ galena, gold ]
 KasternsKeep:
   label: Kastern's Keep
   tags:
@@ -570,12 +681,16 @@ Lagoon:
     - decoration
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ chalcopyrite ]
 Lake:
   label: Lake
   tags:
     - decoration
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ goethite ]
 Lapis:
   label: Lapis Orchard
   produces: food
@@ -583,6 +698,10 @@ Lapis:
     orbit:
       - 2
     phosphorus: ~
+  requires_ores:
+    - gysum
+    - monazite
+    - sulfur
   tags:
     - food
   type: food
@@ -596,12 +715,16 @@ LapisForest:
     - food
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ halite, anthracite ]
 LibraryOfJith:
   label: Library of Jith
   tags:
     - glyph
     - infrastructure
   type: glyph
+  glyph_recipes:
+    - [ anthracite, bauxite, beryl, chalcopyrite ]
 LuxuryHousing:
   label: Luxury Housing
   produces: happiness
@@ -640,13 +763,15 @@ MalcudField:
     - food
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ fluorite, kerogen ]
 MassadsHenge:
   label: Massad's Henge
   tags:
     - glyph
   type: glyph
 MayhemTraining:
-  label: Mayhem Training Facility
+  label: Mayhem Training
   tags:
     - command
     - infrastructure
@@ -692,6 +817,9 @@ MissionCommand:
   type: command
 MunitionsLab:
   label: Munitions Lab
+  requires_ores:
+    - monazite
+    - uraninite
   tags:
     - command
     - infrastructure
@@ -704,6 +832,8 @@ NaturalSpring:
     - glyph
     - water
   type: glyph
+  glyph_recipes:
+    - [ magnetite, halite ]
 Network19:
   label: Network 19 Affiliate
   produces: happiness
@@ -730,9 +860,14 @@ OracleOfAnid:
     - glyph
     - infrastructure
   type: glyph
+  glyph_recipes:
+    - [ gold, uraninite, bauxite, goethite ]
 OreRefinery:
   label: Ore Refinery
   produces: ore
+  requires_ores:
+    - fluorite
+    - sulfur
   tags:
     - ore
   type: ore
@@ -767,6 +902,8 @@ PantheonOfHagness:
     - glyph
     - planet
   type: glyph
+  glyph_recipes:
+    - [ gypsum, trona, beryl, anthracite ]
 Park:
   label: Park
   produces: happiness
@@ -793,6 +930,8 @@ Pie:
   type: food
 PilotTraining:
   label: Pilot Training Facility
+  requires_ores:
+    - gold
   tags:
     - command
     - infrastructure
@@ -817,7 +956,7 @@ PoliceStation:
     - space_station_module
   type: command
 PoliticsTraining:
-  label: Politics Training Facility
+  label: Politics Training
   tags:
     - command
     - infrastructure
@@ -831,11 +970,22 @@ Potato:
       - 3
       - 4
     phosphorus: ~
+  requires_ores:
+    - gysum
+    - monazite
+    - sulfur
   tags:
     - food
   type: food
 Propulsion:
   label: Propulsion System Factory
+  requires_ores:
+    - bauxite
+    - beryl
+    - chromite
+    - goethite
+    - magnetite
+    - rutile
   tags:
     - command
     - infrastructure
@@ -859,14 +1009,26 @@ Ravine:
     - storage
     - waste
   type: glyph
+  glyph_recipes:
+    - [ zircon, methane, galena, fluorite ]
 RockyOutcrop:
   label: Rocky Outcropping
   tags:
     - decoration
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ trona ]
 SAW:
   label: Shield Against Weapons
+  requires_ores:
+    - bauxite
+    - chalcopyrite
+    - chromite
+    - gold
+    - magnetite
+    - monazite
+    - rutile
   tags:
     - command
     - defense
@@ -902,6 +1064,8 @@ Sand:
     - decoration
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ bauxite ]
 Security:
   label: Security Ministry
   tags:
@@ -1006,6 +1170,8 @@ TempleOfTheDrajilites:
     - command
     - glyph
   type: glyph
+  glyph_recipes:
+    - [ kerogen, rutile, chromite, chalcopyrite ]
 TerraformingLab:
   label: Terraforming Lab
   tags:
@@ -1013,8 +1179,14 @@ TerraformingLab:
     - command
     - infrastructure
   type: command
+  glyph_recipes:
+    - [ methane, zircon, magnetite, beryl ]
 TerraformingPlatform:
   label: Terraforming Platform
+  requires_ores:
+    - gysum
+    - monazite
+    - sulfur
   tags:
     - colony
     - command
@@ -1026,7 +1198,7 @@ TheDillonForge:
     - glyph
   type: glyph
 TheftTraining:
-  label: Theft Training Facility
+  label: Theft Training
   tags:
     - command
     - infrastructure
@@ -1068,6 +1240,8 @@ Volcano:
     - glyph
     - ore
   type: glyph
+  glyph_recipes:
+    - [ magnetite, uraninite ]
 Warehouse:
   label: Warehouse
   stores:
@@ -1090,6 +1264,10 @@ WasteDigester:
 WasteEnergy:
   label: Waste Energy Plant
   produces: energy
+  requires_ores:
+    - beryl
+    - gypsum
+    - zircon
   tags:
     - energy
     - waste
@@ -1112,6 +1290,10 @@ WasteSequestration:
   type: storage
 WasteTreatment:
   label: Waste Treatment Center
+  requires_ores:
+    - halite
+    - sulfur
+    - trona
   tags:
     - waste
   type: waste
@@ -1130,6 +1312,9 @@ WaterPurification:
 WaterReclamation:
   label: Water Reclamation Facility
   produces: water
+  requires_ores:
+    - halite
+    - sulfur
   tags:
     - water
   type: water
@@ -1148,6 +1333,10 @@ Wheat:
       - 3
       - 4
     phosphorus: ~
+  requires_ores:
+    - gysum
+    - monazite
+    - sulfur
   tags:
     - food
   type: food

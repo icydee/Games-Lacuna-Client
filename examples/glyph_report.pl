@@ -4,39 +4,35 @@ use strict;
 use warnings;
 use FindBin;
 use lib "$FindBin::Bin/../lib";
-use List::Util            (qw( first min sum ));
-use List::MoreUtils       qw( none );
+use List::Util            (qw( first sum ));
 use Games::Lacuna::Client ();
 use Getopt::Long          (qw(GetOptions));
 
-if ( $^O !~ /MSWin32/) {
+if ( $^O !~ /MSWin32/ ) {
     $Games::Lacuna::Client::PrettyPrint::ansi_color = 1;
 }
 
-my @planets;
+my $planet_name;
 my $opt_glyph_type = {};
 GetOptions(
-    'planet=s@' => \@planets,
-    'c|color!'  => \$Games::Lacuna::Client::PrettyPrint::ansi_color,
-    't|type=s'  => sub { $opt_glyph_type->{$_[1]} = 1; },
+    'planet=s'      => \$planet_name,
+    'c|color!'      => \$Games::Lacuna::Client::PrettyPrint::ansi_color,
+    't|type=s'      => sub { $opt_glyph_type->{ $_[1] } = 1; },
     'f|functional!' => sub { $opt_glyph_type->{'Functional Recipes'} = 1; },
     'd|decorative!' => sub { $opt_glyph_type->{'Decorative Recipes'} = 1; },
 );
 
-my $cfg_file = shift(@ARGV) || 'lacuna.yml' unless $ARGV[0] and $ARGV[0] =~ /\-/;
+my $cfg_file = shift(@ARGV) || 'lacuna.yml' unless $ARGV[0] and $ARGV[0] =~ /^\-/;
 unless ( $cfg_file and -e $cfg_file ) {
-  $cfg_file = eval{
-    require File::HomeDir;
-    require File::Spec;
-    my $dist = File::HomeDir->my_dist_config('Games-Lacuna-Client');
-    File::Spec->catfile(
-      $dist,
-      'login.yml'
-    ) if $dist;
-  };
-  unless ( $cfg_file and -e $cfg_file ) {
-    die "Did not provide a config file";
-  }
+    $cfg_file = eval {
+        require File::HomeDir;
+        require File::Spec;
+        my $dist = File::HomeDir->my_dist_config('Games-Lacuna-Client');
+        File::Spec->catfile( $dist, 'login.yml' ) if $dist;
+    };
+    unless ( $cfg_file and -e $cfg_file ) {
+        die "Did not provide a config file";
+    }
 }
 
 my $client = Games::Lacuna::Client->new(
@@ -46,7 +42,7 @@ my $client = Games::Lacuna::Client->new(
 );
 
 # Load the planets
-my $empire  = $client->empire->get_status->{empire};
+my $empire = $client->empire->get_status->{empire};
 
 # reverse hash, to key by name instead of id
 my %planets = reverse %{ $empire->{planets} };
@@ -55,16 +51,25 @@ my %planets = reverse %{ $empire->{planets} };
 my %all_glyphs = map { $_, 0 } qw( anthracite bauxite beryl chalcopyrite chromite fluorite galena goethite gold gypsum halite kerogen magnetite methane monazite rutile sulfur trona uraninite zircon );
 foreach my $name ( sort keys %planets ) {
 
-    next if @planets && none { lc $name eq lc $_ } @planets;
+    next if defined $planet_name && lc $planet_name ne lc $name;
 
     # Load planet data
-    my $planet    = $client->body( id => $planets{$name} );
-    my $result    = $planet->get_buildings;
-    my $body      = $result->{status}->{body};
+    my $planet = $client->body( id => $planets{$name} );
+    my $result = $planet->get_buildings;
+    my $body   = $result->{status}->{body};
 
     my $buildings = $result->{buildings};
 
-    my $glyphs = get_glyphs( $client, $buildings );
+    # Find the Archaeology Ministry
+    my $arch_id = first {
+        $buildings->{$_}->{name} eq 'Archaeology Ministry';
+    }
+    keys %$buildings;
+
+    next if not $arch_id;
+
+    my $arch = $client->building( id => $arch_id, type => 'Archaeology' );
+    my $glyphs = $arch->get_glyph_summary->{glyphs};
 
     next if !@$glyphs;
 
@@ -77,63 +82,15 @@ foreach my $name ( sort keys %planets ) {
     my %glyphs;
 
     for my $glyph (@$glyphs) {
-        $glyphs{$glyph->{type}}++;
-
-        $all_glyphs{$glyph->{type}} = 0 if not $all_glyphs{$glyph->{type}};
-        $all_glyphs{$glyph->{type}}++;
+        $all_glyphs{ $glyph->{type} } = 0 if not $all_glyphs{ $glyph->{type} };
+        $all_glyphs{ $glyph->{type} } += $glyph->{quantity};
+        printf "%s (%d)\n", ucfirst( $glyph->{type} ), $glyph->{quantity};
     }
-
-    map {
-        printf "%s (%d)\n", ucfirst( $_ ), $glyphs{$_};
-    } sort keys %glyphs;
-
-    printf "\t(%d glyphs)\n", sum values %glyphs;
-
     print "\n";
 }
 
 my $all_halls = 0;
 creation_summary(%all_glyphs);
-
-print "\nTotal Halls: $all_halls\n";
-print "Total Glyphs: " . sum(values %all_glyphs) . "\n";
-print localtime() . "\n";
-
-exit;
-
-
-sub get_glyphs {
-    my ( $client, $buildings ) = @_;
-
-    my $id;
-    my $type;
-
-    # Find the Archaeology Ministry
-    my $arch_id = first {
-            $buildings->{$_}->{url} eq '/archaeology'
-    } keys %$buildings;
-
-    if ( $arch_id ) {
-        $id   = $arch_id;
-        $type = 'Archaeology';
-    }
-    else {
-        my $trade_id = first {
-                $buildings->{$_}->{url} eq '/trade'
-        } keys %$buildings;
-
-        if ( $trade_id ) {
-            $id   = $trade_id;
-            $type = 'Trade';
-        }
-    }
-
-    return [] if !$id;
-
-    my $building = $client->building( id => $id, type => $type );
-
-    return $building->get_glyphs->{glyphs};
-}
 
 # Print out a pretty table of what we can make.
 sub creation_summary {
@@ -147,45 +104,50 @@ sub creation_summary {
     my @keys = ( keys %$yml );
     @keys = grep { $opt_glyph_type->{$_} } @keys if keys %$opt_glyph_type;
 
-    for my $title ( @keys )
-    {
-        print _c_('bold white'), "\n$title\n", "=" x length $title, "\n", _c_('reset');
-        printf qq{%-30s%-10s%-10s%s\n}, "Building", "Possible", "Missing", "Glyph Combine Order";
+    for my $title (@keys) {
+        print _c_('bold white'), "\n$title\n", "=" x length $title, "\n",
+          _c_('reset');
+        printf qq{%-30s%-10s%s\n}, "Building", "Missing", "Glyph Combine Order";
         print q{-} x 80, "\n";
-        my %recipes = %{$yml->{$title}};
-        for my $glyph ( keys %recipes ){
-            my ($order, $quantity) = @{$recipes{$glyph}}{qw(order quantity)};
+        my %recipes = %{ $yml->{$title} };
+        for my $glyph ( keys %recipes ) {
+            my ( $order, $quantity ) =
+              @{ $recipes{$glyph} }{qw(order quantity)};
             my $missing = reduce {
-                #print "\t$glyph requires $b [", $quantity->{$b}, ",", $contents{$b} || 0, "]\n";
-                my $m = $quantity->{$b} - ($contents{$b} || 0);
+
+#print "\t$glyph requires $b [", $quantity->{$b}, ",", $contents{$b} || 0, "]\n";
+                my $m = $quantity->{$b} - ( $contents{$b} || 0 );
                 $m = $m < 0 ? 0 : $m;
                 $remaining{$glyph}{$b} = $m;
                 $a + $m;
-            } 0, keys %$quantity;
+            }
+            0, keys %$quantity;
             $ready{$glyph} = $missing;
         }
-        my @available_glyphs = sort { $ready{$a} <=> $ready{$b} || $a cmp $b } keys %recipes;
+        my @available_glyphs =
+          sort { $ready{$a} <=> $ready{$b} || $a cmp $b } keys %recipes;
         my $lvl;
-        for my $glyph ( sort @available_glyphs ){
+        for my $glyph ( sort @available_glyphs ) {
             my $c = {
-                0   => _c_('green'),
-                1   => _c_('yellow'),
-                2   => _c_('red'),
-                3   => _c_('red'),
-                4   => _c_('red'),
-            }->{$ready{$glyph}};
+                0 => _c_('green'),
+                1 => _c_('yellow'),
+                2 => _c_('red'),
+                3 => _c_('red'),
+                4 => _c_('red'),
+            }->{ $ready{$glyph} };
 
-            printf qq{%s%-30s%s%-10d%-10d}, $c, $glyph, _c_('reset'), min(@contents{@{$recipes{$glyph}{order}}}), $ready{$glyph};
-            $all_halls += min(@contents{@{$recipes{$glyph}{order}}}) if $glyph =~ /^Halls of Vrbansk /;
+            printf qq{%s%-30s%s%-10d}, $c, $glyph, _c_('reset'), $ready{$glyph};
+
             # Print build order.
             my @out;
-            for my $ordered ( @{$recipes{$glyph}{order}} ){
-                my $segment = !$remaining{$glyph}{$ordered} ? _c_('green') : _c_('red');
+            for my $ordered ( @{ $recipes{$glyph}{order} } ) {
+                my $segment =
+                  !$remaining{$glyph}{$ordered} ? _c_('green') : _c_('red');
                 my $no_color_ask = '';
-                if(not $Games::Lacuna::Client::PrettyPrint::ansi_color) {
+                if ( not $Games::Lacuna::Client::PrettyPrint::ansi_color ) {
                     $no_color_ask = $remaining{$glyph}{$ordered} ? '*' : '';
                 }
-                $segment .= sprintf qq{%-15s}, $ordered . ' (' . ($contents{$ordered} || 0) . ')' . ($no_color_ask );
+                $segment .= sprintf qq{%-15s}, $ordered . ($no_color_ask);
                 $segment .= _c_('reset');
                 push @out, $segment;
             }

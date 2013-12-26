@@ -28,6 +28,7 @@ use Class::XSAccessor {
     cfg_file
     rpc_sleep
     prompt_captcha
+    open_captcha
   )],
 };
 
@@ -54,6 +55,8 @@ sub new {
     $opt{name}     = defined $opt{name} ? $opt{name} : $yml->{empire_name};
     $opt{password} = defined $opt{password} ? $opt{password} : $yml->{empire_password};
     $opt{uri}      = defined $opt{uri} ? $opt{uri} : $yml->{server_uri};
+    $opt{open_captcha}   = defined $opt{open_captcha}   ? $opt{open_captcha}   : $yml->{open_captcha};
+    $opt{prompt_captcha} = defined $opt{prompt_captcha} ? $opt{prompt_captcha} : $yml->{prompt_captcha};
     for (qw(uri api_key session_start session_id session_persistent cache_dir)) {
       if (exists $yml->{$_}) {
         $opt{$_} = defined $opt{$_} ? $opt{$_} : $yml->{$_};
@@ -67,10 +70,10 @@ sub new {
        or not exists $opt{password}
        or not exists $opt{api_key};
   $opt{uri} =~ s/\/+$//;
-  
+
   my $debug = exists $ENV{GLC_DEBUG} ? $ENV{GLC_DEBUG}
             :                          0;
-  
+
   my $self = bless {
     session_start      => 0,
     session_id         => 0,
@@ -80,7 +83,7 @@ sub new {
     debug              => $debug,
     %opt
   } => $class;
-  
+
   # the actual RPC client
   $self->{rpc} = Games::Lacuna::Client::RPC->new(client => $self);
 
@@ -195,7 +198,7 @@ sub write_cfg {
 
 sub assert_session {
   my $self = shift;
-  
+
   my $now = time();
   if (!$self->session_id || $now - $self->session_start > $self->session_timeout) {
     if ($self->debug) {
@@ -217,7 +220,7 @@ sub assert_session {
 sub get_config_file {
   my ($class, $files, $optional) = @_;
   $files = ref $files eq 'ARRAY' ? $files : [ $files ];
-  $files = [map { 
+  $files = [map {
       my @values = ($_);
       my $dist_file = eval {
           require File::HomeDir;
@@ -254,7 +257,7 @@ Games::Lacuna::Client - An RPC client for the Lacuna Expanse
 
   use Games::Lacuna::Client;
   my $client = Games::Lacuna::Client->new(cfg_file => 'path/to/myempire.yml');
-  
+
   # or manually:
   my $client = Games::Lacuna::Client->new(
     uri      => 'https://path/to/server',
@@ -264,10 +267,10 @@ Games::Lacuna::Client - An RPC client for the Lacuna Expanse
     #session_peristent => 1, # only makes sense with cfg_file set!
     #debug    => 1,
   );
-  
+
   my $res = $client->alliance->find("The Understanding");
   my $id = $res->{alliances}->[0]->{id};
-  
+
   use Data::Dumper;
   print Dumper $client->alliance->view_profile( $res->{alliances}->[0]->{id} );
 
@@ -331,6 +334,13 @@ F<examples> subdirectory.
   session_start:
   session_id:
   session_persistent:
+  
+  open_captcha: 1   # Will attempt to open the captcha URL in a browser,
+                    # and prompts for the answer. If the browser-open fails,
+                    # falls back to prompt_captcha behaviour if that setting
+                    # is also true
+  
+  prompt_captcha: 1 # Will print an image URL, and prompts for the answer
 
 =head1 SEE ALSO
 

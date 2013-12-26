@@ -3,13 +3,13 @@
 # Script to parse thru the probe data
 #
 # Usage: perl parse_probe.pl probe_file
-#  
+#
 # Write this to put out system stats
 #
 use strict;
 use warnings;
 use Getopt::Long qw(GetOptions);
-use YAML;
+use YAML::Any;
 use YAML::XS;
 use Data::Dumper;
 use utf8;
@@ -37,8 +37,8 @@ GetOptions(
 
 
 for $bod (@$bodies) {
-  if (not defined($bod->{empire}->{name})) { $bod->{empire}->{name} = "unclaimed"; } 
-  if (not defined($bod->{water})) { $bod->{water} = 0; } 
+  if (not defined($bod->{empire}->{name})) { $bod->{empire}->{name} = "unclaimed"; }
+  if (not defined($bod->{water})) { $bod->{water} = 0; }
   $bod->{image} =~ s/-.//;
   print join(",", $bod->{star_name}, $bod->{star_id}, $bod->{sdistance}, $stars->{$bod->{star_id}}->{x},
                   $stars->{$bod->{star_id}}->{y},  $bod->{distance}, $bod->{orbit}, $bod->{image},

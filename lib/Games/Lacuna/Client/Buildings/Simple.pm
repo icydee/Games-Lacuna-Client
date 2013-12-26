@@ -48,6 +48,7 @@ our @BuildingTypes = (qw(
     Espionage
     EssentiaVein
     Fission
+    Fissure
     Fusion
     GasGiantLab
     GasGiantPlatform
@@ -107,7 +108,6 @@ our @BuildingTypes = (qw(
     Syrup
     TerraformingLab
     TerraformingPlatform
-    TheDillonForge
     University
     Volcano
     WasteDigester
